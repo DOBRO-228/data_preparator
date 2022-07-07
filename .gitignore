@@ -1,0 +1,11 @@
+.venv/
+.vscode/
+.history/
+dist/
+dist/*
+__pycache__/
+debug.py
+input/
+output/
+yahaa/
+.env
