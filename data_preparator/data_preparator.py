@@ -15,10 +15,10 @@ def prepare_data(df):
     convert_date_columns_to_datetime_format(df)
     convert_gender_column_to_boolean_format(df)
     fill_empty_cells_in_quantity_column(df)
-    prepared_data_frames.append({
+    return {
         'df': df,
         'df_with_empty_values': df_with_empty_values,
-    })
+    }
 
 
 def drop_not_required_columns(df):
