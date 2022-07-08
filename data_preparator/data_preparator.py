@@ -79,7 +79,6 @@ def change_date_format(date):
 def convert_date_columns_to_datetime_format(df):
     """Приводит к одному формату дат колонки с датами."""
     for column in constants.COLUMNS_WITH_DATES:
-        df[column] = df[column].apply(change_date_format)
         df[column] = pd.to_datetime(df[column], format='%d/%m/%Y', errors='coerce')
 
 

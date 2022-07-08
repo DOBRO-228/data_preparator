@@ -7,7 +7,6 @@ FLOAT_COLUMNS = [
     'INSURED_ID',
     'SERVICE_AMOUNT',
     'POLICY_NUMBER',
-    'SPECIALITY_CODE',
 ]
 
 REQUIRED_NOT_EMPTY_COLUMNS = [
@@ -35,8 +34,6 @@ COLUMNS_MAPPING = {
     'Discharge Diagnosis Code': 'DISCHARGE_MKB_CODE',
     'Other Diagnosis Code': 'OTHER_MKB_CODE',
     'Policy Number': 'POLICY_NUMBER',
-    'Practioner ID': 'DOCTOR_ID',
-    'Speciality Code': 'SPECIALITY_CODE',
     'Speciality Description': 'SPECIALITY_DESCRIPTION',
     'Unit Price': 'SERVICE_AMOUNT',
 }
