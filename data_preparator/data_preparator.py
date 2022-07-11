@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 from data_preparator import constants
 
@@ -10,11 +9,11 @@ def prepare_data(df):
     drop_not_required_columns(df)
     rename_columns(df)
     set_uniq_values_in_record_id_column(df)
-    df, df_with_empty_values = separate_rows_with_empty_cells_in_required_columns(df)
     change_commas_to_dots_in_float_columns(df)
     convert_date_columns_to_datetime_format(df)
     convert_gender_column_to_boolean_format(df)
     fill_empty_cells_in_quantity_column(df)
+    df, df_with_empty_values = separate_rows_with_empty_cells_in_required_columns(df)
     return {
         'df': df,
         'df_with_empty_values': df_with_empty_values,
@@ -63,17 +62,6 @@ def change_commas_to_dots_in_float_columns(df):
     for column in constants.FLOAT_COLUMNS:
         df[column].replace(',', '.', regex=True, inplace=True)
         df[column] = df[column].astype(float)
-
-
-def change_date_format(date):
-    """Меняет структуру даты."""
-    if date == '?':
-        return np.nan
-    date = str(date)
-    if '/' in date:
-        return date
-    date_parts = date.split()[0].split('-')
-    return f'{date_parts[1]}/{date_parts[2]}/{date_parts[0]}'
 
 
 def convert_date_columns_to_datetime_format(df):
