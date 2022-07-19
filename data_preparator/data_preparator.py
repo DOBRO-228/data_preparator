@@ -12,8 +12,7 @@ preprocessed_data_frames = []
 
 def process_data_frame(df):
     """Обрабатывает данные."""
-    df_for_results = df.copy()
-    set_uniq_values_in_record_id_column(df_for_results)
+    df_for_results = get_df_for_results(df)
 
     drop_not_required_columns(df)
     rename_columns(df)
@@ -33,6 +32,17 @@ def process_data_frame(df):
         'df_with_empty_values': df_with_empty_values,
     })
     return df, df_with_medical_devices, df_with_drugs, df_for_results
+
+
+def get_df_for_results(df):
+    """Отдаёт дата фрейм, в котором сделана только колонка RECORD_ID."""
+    df_for_results = df.copy()
+    df_for_results.rename(
+        columns={'SN': 'RECORD_ID'},
+        inplace=True,
+    )
+    set_uniq_values_in_record_id_column(df_for_results)
+    return df_for_results
 
 
 def drop_not_required_columns(df):
