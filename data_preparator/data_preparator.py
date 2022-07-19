@@ -83,14 +83,14 @@ def change_commas_to_dots_in_float_columns(df):
 
 def standardize_date_format(date_with_time):
     """Приводит дату к одному виду."""
-    if date_with_time == '?':
-        return np.nan
     date_with_time = str(date_with_time)
     if '/' in date_with_time:
         return date_with_time
-    date, _ = date_with_time.split(' ')
-    year, month, day = date.split('-')
-    return '{day}/{month}/{year}'.format(day=day, month=month, year=year)
+    if '-' in date_with_time:
+        date, _ = date_with_time.split(' ')
+        year, month, day = date.split('-')
+        return '{day}/{month}/{year}'.format(day=day, month=month, year=year)
+    return np.nan
 
 
 def convert_date_columns_to_datetime_format(df):
