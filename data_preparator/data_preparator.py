@@ -17,6 +17,7 @@ def process_data_frame(df):
     drop_not_required_columns(df)
     rename_columns(df)
     set_uniq_values_in_record_id_column(df)
+    convert_mkb_columns_to_str(df)
     convert_nphies_code_to_str(df)
     convert_date_columns_to_datetime_format(df)
     change_commas_to_dots_in_float_columns(df)
@@ -70,7 +71,20 @@ def set_uniq_values_in_record_id_column(df):
         df['RECORD_ID'] = range(1, len(df.index) + 1)
 
 
+def convert_mkb_columns_to_str(df):
+    """Приводит к строке колонки с МКБ кодами."""
+    mkb_columns = [
+        'MKB_CODE',
+        'SECOND_MKB_CODE',
+        'DISCHARGE_MKB_CODE',
+        'OTHER_MKB_CODE',
+    ]
+    for mkb_column in mkb_columns:
+        df[mkb_column] = df[mkb_column].astype(str)
+
+
 def convert_nphies_code_to_str(df):
+    """Приводит к строке колонку с НФИС кодом."""
     df['NPHIES_CODE'] = df['NPHIES_CODE'].astype(str)
 
 
