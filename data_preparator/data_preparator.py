@@ -1,5 +1,6 @@
-import numpy as np
 import pandas as pd
+from dateutil import parser
+
 from . import constants
 from .data_frame_separators import (
     separate_drugs,
@@ -98,13 +99,8 @@ def change_commas_to_dots_in_float_columns(df):
 def standardize_date_format(date_with_time):
     """Приводит дату к одному виду."""
     date_with_time = str(date_with_time)
-    if '/' in date_with_time:
-        return date_with_time
-    if '-' in date_with_time:
-        date, _ = date_with_time.split(' ')
-        year, month, day = date.split('-')
-        return '{day}/{month}/{year}'.format(day=day, month=month, year=year)
-    return np.nan
+    parsed_date_with_time = parser.parse(date_with_time).date()
+    return parsed_date_with_time.strftime('%d/%m/%Y')
 
 
 def convert_date_columns_to_datetime_format(df):

@@ -8,6 +8,7 @@ authors = ["Dobro <matematikaigor@gmail.com>"]
 python = "^3.8"
 pandas = "^1.4.3"
 python-dotenv = "^0.20.0"
+python-dateutil = "^2.8.2"
 
 [tool.poetry.dev-dependencies]
 isort = "^5.9.3"
