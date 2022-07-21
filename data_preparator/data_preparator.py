@@ -1,5 +1,7 @@
+import numpy as np
 import pandas as pd
-from dateutil import parser
+from dateutil import parser as date_parser
+from dateutil.parser import ParserError
 
 from . import constants
 from .data_frame_separators import (
@@ -99,7 +101,10 @@ def change_commas_to_dots_in_float_columns(df):
 def standardize_date_format(date_with_time):
     """Приводит дату к одному виду."""
     date_with_time = str(date_with_time)
-    parsed_date_with_time = parser.parse(date_with_time).date()
+    try:
+        parsed_date_with_time = date_parser.parse(date_with_time).date()
+    except ParserError:
+        return np.nan
     return parsed_date_with_time.strftime('%d/%m/%Y')
 
 
