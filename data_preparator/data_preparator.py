@@ -1,3 +1,5 @@
+import re
+
 import numpy as np
 import pandas as pd
 from dateutil import parser as date_parser
@@ -22,6 +24,7 @@ def process_data_frame(df):
     set_uniq_values_in_record_id_column(df)
     convert_mkb_columns_to_str(df)
     convert_nphies_code_to_str(df)
+    remove_zeros_from_left_side_of_nphies_codes(df)
     convert_date_columns_to_datetime_format(df)
     change_commas_to_dots_in_float_columns(df)
     convert_gender_column_to_boolean_format(df)
@@ -36,6 +39,13 @@ def process_data_frame(df):
         'df_with_empty_values': df_with_empty_values,
     })
     return df, df_with_medical_devices, df_with_drugs, df_for_results
+
+
+def remove_zeros_from_left_side_of_nphies_codes(df):
+    """Убирает нули с левой стороны НФИС кода."""
+    df['NPHIES_CODE'] = df['NPHIES_CODE'].apply(
+        lambda code: re.sub('^0*', '', code),
+    )
 
 
 def get_df_for_results(df):
