@@ -128,7 +128,8 @@ def standardize_date_format(date_with_time):
     except ParserError:
         return np.nan
     current_date = datetime.today().date()
-    if parsed_date_without_time > current_date:
+    amount_of_months_in_year = 12
+    if parsed_date_without_time > current_date and parsed_date_without_time.day <= amount_of_months_in_year:
         parsed_date_without_time = swap_day_with_month(parsed_date_without_time)
     return parsed_date_without_time.strftime('%d/%m/%Y')
 
