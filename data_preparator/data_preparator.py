@@ -1,4 +1,5 @@
 import re
+from datetime import datetime
 
 import numpy as np
 import pandas as pd
@@ -108,14 +109,28 @@ def change_commas_to_dots_in_float_columns(df):
         df[column] = df[column].astype(float)
 
 
+def swap_day_with_month(date):
+    """Меняет местами день с месяцем в объекте datetime.date."""
+    day = date.day
+    month = date.month
+    date = date.replace(day=month)
+    return date.replace(month=day)
+
+
 def standardize_date_format(date_with_time):
     """Приводит дату к одному виду."""
     date_with_time = str(date_with_time)
+    day_first = False
+    if '-' in date_with_time:
+        day_first = True
     try:
-        parsed_date_with_time = date_parser.parse(date_with_time).date()
+        parsed_date_without_time = date_parser.parse(date_with_time, dayfirst=day_first).date()
     except ParserError:
         return np.nan
-    return parsed_date_with_time.strftime('%d/%m/%Y')
+    current_date = datetime.today().date()
+    if parsed_date_without_time > current_date:
+        parsed_date_without_time = swap_day_with_month(parsed_date_without_time)
+    return parsed_date_without_time.strftime('%d/%m/%Y')
 
 
 def convert_date_columns_to_datetime_format(df):
