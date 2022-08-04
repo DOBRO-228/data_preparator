@@ -19,18 +19,17 @@ preprocessed_data_frames = []
 def process_data_frame(df):
     """Обрабатывает данные."""
     df_for_results = get_df_for_results(df)
-
     drop_not_required_columns(df)
     rename_columns(df)
     set_uniq_values_in_record_id_column(df)
-    convert_mkb_columns_to_str(df)
-    convert_nphies_code_to_str(df)
-    remove_zeros_from_left_side_of_nphies_codes(df)
     convert_date_columns_to_datetime_format(df)
+    df, df_with_empty_values = separate_rows_with_empty_cells_in_required_columns(df)
+    convert_mkb_columns_to_str(df)
+    convert_nphies_code_and_service_name_to_str(df)
+    remove_zeros_from_left_side_of_nphies_codes(df)
     change_commas_to_dots_in_float_columns(df)
     convert_gender_column_to_boolean_format(df)
     fill_empty_cells_in_quantity_column(df)
-    df, df_with_empty_values = separate_rows_with_empty_cells_in_required_columns(df)
     df, df_with_medical_devices = separate_medical_devices(df)
     df, df_with_drugs = separate_drugs(df)
     preprocessed_data_frames.append({
@@ -94,9 +93,10 @@ def convert_mkb_columns_to_str(df):
         df[mkb_column] = df[mkb_column].astype(str)
 
 
-def convert_nphies_code_to_str(df):
-    """Приводит к строке колонку с НФИС кодом."""
+def convert_nphies_code_and_service_name_to_str(df):
+    """Приводит к строке колонки с НФИС кодом и Наименованием услуги."""
     df['NPHIES_CODE'] = df['NPHIES_CODE'].astype(str)
+    df['SERVICE_NAME'] = df['SERVICE_NAME'].astype(str)
 
 
 def change_commas_to_dots_in_float_columns(df):

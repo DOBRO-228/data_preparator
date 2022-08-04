@@ -1,23 +1,37 @@
+import types
+
 import numpy as np
 
-NAN_VALUES = ['nan', 'Nan', 'NAN', 'NaN', 'None', 'Null', 'NULL', None, np.nan]
+NAN_VALUES = (
+    float('nan'), 'nan', 'Nan', 'NAN', 'NaN', 'None', 'Null', 'NULL', None, np.nan,
+)
 
-FLOAT_COLUMNS = [
+
+FLOAT_COLUMNS = (
     'LPU_ID',
     'INSURED_ID',
     'SERVICE_AMOUNT',
     'POLICY_NUMBER',
-]
+)
 
-REQUIRED_NOT_EMPTY_COLUMNS = [
-    'SERVICE_NAME',
+NOT_EMPTY_REQUIRED_COLUMNS = (
     'INSURED_AGE_WHEN_SERVICED',
     'INSURED_IS_MALE',
     'SERVICE_DATE',
     'POLICY_NUMBER',
-]
+)
 
-COLUMNS_MAPPING = {
+NOT_EMPTY_REQUIRED_COLUMNS_SIMULTANEOUSLY = (
+    'SERVICE_NAME',
+    'NPHIES_CODE',
+)
+
+COLUMNS_WITH_DATES = (
+    'INSURED_AGE_WHEN_SERVICED',
+    'SERVICE_DATE',
+)
+
+COLUMNS_MAPPING = types.MappingProxyType({
     'SN': 'RECORD_ID',
     'Provider Pin': 'LPU_ID',
     'Patient ID': 'INSURED_ID',
@@ -36,9 +50,4 @@ COLUMNS_MAPPING = {
     'Policy Number': 'POLICY_NUMBER',
     'Speciality Description': 'SPECIALITY_DESCRIPTION',
     'Unit Price': 'SERVICE_AMOUNT',
-}
-
-COLUMNS_WITH_DATES = [
-    'INSURED_AGE_WHEN_SERVICED',
-    'SERVICE_DATE',
-]
+})

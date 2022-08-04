@@ -6,13 +6,18 @@ from data_preparator import constants
 
 def separate_rows_with_empty_cells_in_required_columns(df):
     """Отделяет строки с пустыми ячейками в обязательных колонках в отдельный дата фрейм."""
-    df_with_empty_or_not_empty_required_cells = df.loc[
-        :,
-        constants.REQUIRED_NOT_EMPTY_COLUMNS,
-    ].isnull().any(axis='columns')
-    indices_of_rows_without_empty_required_cells = df.index[df_with_empty_or_not_empty_required_cells].tolist()
-    df_with_empty_values_in_required_columns = df.loc[indices_of_rows_without_empty_required_cells]
-    df = df.loc[~df.index.isin(indices_of_rows_without_empty_required_cells)]
+    df_with_empty_and_not_empty_required_cells = df.loc[
+        :, constants.NOT_EMPTY_REQUIRED_COLUMNS,
+    ].isna().any(axis='columns')
+    df_with_empty_and_not_empty_required_simultaneously_cells = df.loc[
+        :, constants.NOT_EMPTY_REQUIRED_COLUMNS_SIMULTANEOUSLY,
+    ].isna().all(axis='columns')
+    indices_of_rows_with_empty_required_columns = df.index[df_with_empty_and_not_empty_required_cells].tolist()
+    indices_of_rows_with_empty_required_columns.extend(
+        df.index[df_with_empty_and_not_empty_required_simultaneously_cells].tolist(),
+    )
+    df_with_empty_values_in_required_columns = df.loc[indices_of_rows_with_empty_required_columns]
+    df = df.loc[~df.index.isin(indices_of_rows_with_empty_required_columns)]
     return df, df_with_empty_values_in_required_columns
 
 
