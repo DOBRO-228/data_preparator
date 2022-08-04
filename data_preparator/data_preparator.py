@@ -50,12 +50,9 @@ def remove_zeros_from_left_side_of_nphies_codes(df):
 
 
 def get_df_for_results(df):
-    """Отдаёт дата фрейм, в котором сделана только колонка RECORD_ID."""
+    """Отдаёт оригинальный дата фрейм, в который добавлена только колонка RECORD_ID."""
     df_for_results = df.copy()
-    df_for_results.rename(
-        columns={'SN': 'RECORD_ID'},
-        inplace=True,
-    )
+    df_for_results['RECORD_ID'] = df_for_results['SN']
     set_uniq_values_in_record_id_column(df_for_results)
     return df_for_results
 
