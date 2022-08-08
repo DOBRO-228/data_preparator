@@ -117,9 +117,9 @@ def swap_day_with_month(date):
 def standardize_date_format(date_with_time):
     """Приводит дату к одному виду."""
     date_with_time = str(date_with_time)
-    day_first = False
-    if '-' in date_with_time:
-        day_first = True
+    day_first = True
+    # if '-' in date_with_time:
+    #     day_first = True
     try:
         parsed_date_without_time = date_parser.parse(date_with_time, dayfirst=day_first).date()
     except ParserError:
