@@ -13,12 +13,10 @@ from .data_frame_separators import (
     separate_rows_with_empty_cells_in_required_columns,
 )
 
-preprocessed_data_frames = []
-
 
 def process_data_frame(df):
     """Обрабатывает данные."""
-    df_for_results = get_df_for_results(df)
+    primary_df_but_with_added_record_id_column = get_copy_of_df_with_added_record_id_column(df)
     drop_not_required_columns(df)
     rename_columns(df)
     set_uniq_values_in_record_id_column(df)
@@ -32,13 +30,13 @@ def process_data_frame(df):
     fill_empty_cells_in_quantity_column(df)
     df, df_with_medical_devices = separate_medical_devices(df)
     df, df_with_drugs = separate_drugs(df)
-    preprocessed_data_frames.append({
-        'df': df,
+    return {
+        'prepared_df': df,
         'df_with_medical_devices': df_with_medical_devices,
         'df_with_drugs': df_with_drugs,
         'df_with_empty_values': df_with_empty_values,
-    })
-    return df, df_with_medical_devices, df_with_drugs, df_for_results
+        'primary_df_but_with_added_record_id_column': primary_df_but_with_added_record_id_column,
+    }
 
 
 def remove_zeros_from_left_side_of_nphies_codes(df):
@@ -48,8 +46,8 @@ def remove_zeros_from_left_side_of_nphies_codes(df):
     )
 
 
-def get_df_for_results(df):
-    """Отдаёт оригинальный дата фрейм, в который добавлена только колонка RECORD_ID."""
+def get_copy_of_df_with_added_record_id_column(df):
+    """Отдаёт копию оригинального дата фрейм, в который добавлена только колонка RECORD_ID с уникальными значениями."""
     df_for_results = df.copy()
     df_for_results['RECORD_ID'] = df_for_results['SN']
     set_uniq_values_in_record_id_column(df_for_results)
@@ -83,20 +81,15 @@ def set_uniq_values_in_record_id_column(df):
 
 def convert_mkb_columns_to_str(df):
     """Приводит к строке колонки с МКБ кодами."""
-    mkb_columns = [
-        'MKB_CODE',
-        'SECOND_MKB_CODE',
-        'DISCHARGE_MKB_CODE',
-        'OTHER_MKB_CODE',
-    ]
-    for mkb_column in mkb_columns:
+    for mkb_column in constants.MKB_COLUMNS:
         df[mkb_column] = df[mkb_column].astype(str)
 
 
 def convert_nphies_code_and_service_name_to_str(df):
     """Приводит к строке колонки с НФИС кодом и Наименованием услуги."""
-    df['NPHIES_CODE'] = df['NPHIES_CODE'].astype(str)
-    df['SERVICE_NAME'] = df['SERVICE_NAME'].astype(str)
+    columns_to_convert = ('NPHIES_CODE', 'SERVICE_NAME')
+    for column_name in columns_to_convert:
+        df[column_name] = df[column_name].astype(str)
 
 
 def change_commas_to_dots_in_float_columns(df):
@@ -117,11 +110,8 @@ def swap_day_with_month(date):
 def standardize_date_format(date_with_time):
     """Приводит дату к одному виду."""
     date_with_time = str(date_with_time)
-    day_first = True
-    # if '-' in date_with_time:
-    #     day_first = True
     try:
-        parsed_date_without_time = date_parser.parse(date_with_time, dayfirst=day_first).date()
+        parsed_date_without_time = date_parser.parse(date_with_time, dayfirst=True).date()
     except ParserError:
         return np.nan
     current_date = datetime.today().date()

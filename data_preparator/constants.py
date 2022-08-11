@@ -6,6 +6,12 @@ NAN_VALUES = (
     float('nan'), 'nan', 'Nan', 'NAN', 'NaN', 'None', 'Null', 'NULL', None, np.nan,
 )
 
+MKB_COLUMNS = (
+    'MKB_CODE',
+    'SECOND_MKB_CODE',
+    'DISCHARGE_MKB_CODE',
+    'OTHER_MKB_CODE',
+)
 
 FLOAT_COLUMNS = (
     'LPU_ID',
