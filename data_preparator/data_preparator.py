@@ -11,6 +11,7 @@ from .data_frame_separators import (
     separate_drugs,
     separate_medical_devices,
     separate_rows_with_empty_cells_in_required_columns,
+    separate_rows_with_invalid_birth_date,
 )
 
 
@@ -22,6 +23,7 @@ def process_data_frame(df):
     set_uniq_values_in_record_id_column(df)
     convert_date_columns_to_datetime_format(df)
     df, df_with_empty_values = separate_rows_with_empty_cells_in_required_columns(df)
+    df, df_where_birth_date_is_more_than_service_date = separate_rows_with_invalid_birth_date(df)
     convert_mkb_columns_to_str(df)
     convert_nphies_code_and_service_name_to_str(df)
     remove_zeros_from_left_side_of_nphies_codes(df)
@@ -30,11 +32,13 @@ def process_data_frame(df):
     fill_empty_cells_in_quantity_column(df)
     df, df_with_medical_devices = separate_medical_devices(df)
     df, df_with_drugs = separate_drugs(df)
+    df_with_incomplete_data = pd.concat([df_with_empty_values, df_where_birth_date_is_more_than_service_date])
+    df_with_incomplete_data.sort_index(inplace=True)
     return {
         'prepared_df': df,
         'df_with_medical_devices': df_with_medical_devices,
         'df_with_drugs': df_with_drugs,
-        'df_with_empty_values': df_with_empty_values,
+        'df_with_incomplete_data': df_with_incomplete_data,
         'primary_df_but_with_added_record_id_column': primary_df_but_with_added_record_id_column,
     }
 

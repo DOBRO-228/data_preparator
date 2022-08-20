@@ -46,3 +46,10 @@ def separate_medical_devices(df):
     df.drop('NPHIES_CODE_WITHOUT_DASHES', axis='columns', inplace=True)
     df_with_medical_devices.drop('NPHIES_CODE_WITHOUT_DASHES', axis='columns', inplace=True)
     return df, df_with_medical_devices
+
+
+def separate_rows_with_invalid_birth_date(df):
+    df_where_birth_date_is_more_than_service_date = df.loc[df['INSURED_AGE_WHEN_SERVICED'] > df['SERVICE_DATE']]
+    indices_of_rows_with_invalid_data = df_where_birth_date_is_more_than_service_date.index.values.tolist()
+    df = df.loc[~df.index.isin(indices_of_rows_with_invalid_data)]
+    return df, df_where_birth_date_is_more_than_service_date
