@@ -49,6 +49,7 @@ def separate_medical_devices(df):
 
 
 def separate_rows_with_invalid_birth_date(df):
+    """Отделяет строки, в которых дата рождения > даты оказания услуги."""
     df_where_birth_date_is_more_than_service_date = df.loc[df['INSURED_AGE_WHEN_SERVICED'] > df['SERVICE_DATE']]
     indices_of_rows_with_invalid_data = df_where_birth_date_is_more_than_service_date.index.values.tolist()
     df = df.loc[~df.index.isin(indices_of_rows_with_invalid_data)]
