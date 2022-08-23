@@ -1,10 +1,8 @@
 import re
-from datetime import datetime
 
-import numpy as np
 import pandas as pd
-from dateutil import parser as date_parser
-from dateutil.parser import ParserError
+from data_preparator.utils.date import standardize_date_format
+from data_preparator.validators import DataFrameValidator, validate_required_columns
 
 from . import constants
 from .data_frame_separators import (
@@ -17,9 +15,15 @@ from .data_frame_separators import (
 
 def process_data_frame(df):
     """Обрабатывает данные."""
-    primary_df_but_with_added_record_id_column = get_copy_of_df_with_added_record_id_column(df)
+    remove_blank_rows(df)
+    validate_required_columns(df)
     drop_not_required_columns(df)
     rename_columns(df)
+
+    DataFrameValidator(data_frame=df.to_dict('records'))
+
+    primary_df_but_with_added_record_id_column = get_copy_of_df_with_added_record_id_column(df)
+    set_columns_order_based_on_columns_mapping(df)
     set_uniq_values_in_record_id_column(df)
     convert_date_columns_to_datetime_format(df)
     df, df_with_empty_values = separate_rows_with_empty_cells_in_required_columns(df)
@@ -32,8 +36,10 @@ def process_data_frame(df):
     fill_empty_cells_in_quantity_column(df)
     df, df_with_medical_devices = separate_medical_devices(df)
     df, df_with_drugs = separate_drugs(df)
-    df_with_incomplete_data = pd.concat([df_with_empty_values, df_where_birth_date_is_more_than_service_date])
-    df_with_incomplete_data.sort_index(inplace=True)
+    df_with_incomplete_data = pd.concat([
+        df_with_empty_values,
+        df_where_birth_date_is_more_than_service_date,
+    ])
     return {
         'prepared_df': df,
         'df_with_medical_devices': df_with_medical_devices,
@@ -41,6 +47,18 @@ def process_data_frame(df):
         'df_with_incomplete_data': df_with_incomplete_data,
         'primary_df_but_with_added_record_id_column': primary_df_but_with_added_record_id_column,
     }
+
+
+def remove_blank_rows(df: pd.DataFrame) -> None:
+    """Удаляет полностью пустые строки из data frame'а."""
+    df.dropna(axis=0, how='all', inplace=True)
+    df.reset_index(inplace=True)
+
+
+def set_columns_order_based_on_columns_mapping(df: pd.DataFrame) -> None:
+    """Устанавливает в data frame'е такой же порядок столбцов, как и в constants.COLUMNS_MAPPING."""
+    column_headers_in_right_order = constants.COLUMNS_MAPPING.values()
+    df = df[column_headers_in_right_order]
 
 
 def remove_zeros_from_left_side_of_nphies_codes(df):
@@ -101,28 +119,6 @@ def change_commas_to_dots_in_float_columns(df):
     for column in constants.FLOAT_COLUMNS:
         df[column].replace(',', '.', regex=True, inplace=True)
         df[column] = df[column].astype(float)
-
-
-def swap_day_with_month(date):
-    """Меняет местами день с месяцем в объекте datetime.date."""
-    day = date.day
-    month = date.month
-    date = date.replace(day=month)
-    return date.replace(month=day)
-
-
-def standardize_date_format(date_with_time):
-    """Приводит дату к одному виду."""
-    date_with_time = str(date_with_time)
-    try:
-        parsed_date_without_time = date_parser.parse(date_with_time, dayfirst=True).date()
-    except ParserError:
-        return np.nan
-    current_date = datetime.today().date()
-    amount_of_months_in_year = 12
-    if parsed_date_without_time > current_date and parsed_date_without_time.day <= amount_of_months_in_year:
-        parsed_date_without_time = swap_day_with_month(parsed_date_without_time)
-    return parsed_date_without_time.strftime('%d/%m/%Y')
 
 
 def convert_date_columns_to_datetime_format(df):
