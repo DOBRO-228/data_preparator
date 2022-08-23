@@ -55,6 +55,20 @@ class RowValidator(BaseModel):
             raise ValueError('Дата из будущего.')
         return value
 
+    @validator('SERVICE_DATE')
+    def service_date_cant_be_less_than_birth_date(cls, value, values):
+        birth_date = date_parser.parse(
+            value,
+            dayfirst=True,
+        ).date()
+        service_date = date_parser.parse(
+            values.get('INSURED_AGE_WHEN_SERVICED'),
+            dayfirst=True,
+        ).date()
+        if birth_date > service_date:
+            raise ValueError('Дата оказания услуги меньше чем дата рождения.')
+        return value
+
 
 class DataFrameValidator(BaseModel):
     data_frame: List[RowValidator]
