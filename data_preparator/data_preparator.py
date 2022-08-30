@@ -1,8 +1,6 @@
 import re
 
 import pandas as pd
-from data_preparator.utils.date import standardize_date_format
-from data_preparator.validators import DataFrameValidator, validate_required_columns
 
 from . import constants
 from .data_frame_separators import (
@@ -11,27 +9,28 @@ from .data_frame_separators import (
     separate_rows_with_empty_cells_in_required_columns,
     separate_rows_with_invalid_birth_date,
 )
+from .utils.date import standardize_date_format
+from .validators import DataFrameValidator, validate_required_columns
 
 
 def process_data_frame(df):
     """Обрабатывает данные."""
     remove_blank_rows(df)
+    primary_df_but_with_added_record_id_column = get_copy_of_df_with_added_record_id_column(df)
     validate_required_columns(df)
     drop_not_required_columns(df)
     rename_columns(df)
-
+    convert_columns_with_dates_to_str(df)
     DataFrameValidator(data_frame=df.to_dict('records'))
-
-    primary_df_but_with_added_record_id_column = get_copy_of_df_with_added_record_id_column(df)
     set_columns_order_based_on_columns_mapping(df)
     set_uniq_values_in_record_id_column(df)
+    convert_mkb_columns_to_str(df)
+    convert_nphies_code_and_service_name_to_str(df)
+    change_commas_to_dots_in_float_columns(df)
     convert_date_columns_to_datetime_format(df)
     df, df_with_empty_values = separate_rows_with_empty_cells_in_required_columns(df)
     df, df_where_birth_date_is_more_than_service_date = separate_rows_with_invalid_birth_date(df)
-    convert_mkb_columns_to_str(df)
-    convert_nphies_code_and_service_name_to_str(df)
     remove_zeros_from_left_side_of_nphies_codes(df)
-    change_commas_to_dots_in_float_columns(df)
     convert_gender_column_to_boolean_format(df)
     fill_empty_cells_in_quantity_column(df)
     df, df_with_medical_devices = separate_medical_devices(df)
@@ -99,6 +98,12 @@ def set_uniq_values_in_record_id_column(df):
     """
     if not df['RECORD_ID'].is_unique:
         df['RECORD_ID'] = range(1, len(df.index) + 1)
+
+
+def convert_columns_with_dates_to_str(df):
+    """Приводит к строке колонки с МКБ кодами."""
+    for mkb_column in constants.COLUMNS_WITH_DATES:
+        df[mkb_column] = df[mkb_column].astype(str)
 
 
 def convert_mkb_columns_to_str(df):

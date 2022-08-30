@@ -6,6 +6,8 @@ NAN_VALUES = (
     float('nan'), 'nan', 'Nan', 'NAN', 'NaN', 'None', 'Null', 'NULL', None, np.nan,
 )
 
+EXPECTED_SEPARATORS_IN_DATES = (' ', '/', '\\', '-')
+
 MKB_COLUMNS = (
     'MKB_CODE',
     'SECOND_MKB_CODE',
