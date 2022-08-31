@@ -20,7 +20,6 @@ def process_data_frame(df):
     validate_required_columns(df)
     drop_not_required_columns(df)
     rename_columns(df)
-    convert_columns_with_dates_to_str(df)
     DataFrameValidator(data_frame=df.to_dict('records'))
     set_columns_order_based_on_columns_mapping(df)
     set_uniq_values_in_record_id_column(df)
@@ -98,12 +97,6 @@ def set_uniq_values_in_record_id_column(df):
     """
     if not df['RECORD_ID'].is_unique:
         df['RECORD_ID'] = range(1, len(df.index) + 1)
-
-
-def convert_columns_with_dates_to_str(df):
-    """Приводит к строке колонки с МКБ кодами."""
-    for mkb_column in constants.COLUMNS_WITH_DATES:
-        df[mkb_column] = df[mkb_column].astype(str)
 
 
 def convert_mkb_columns_to_str(df):
