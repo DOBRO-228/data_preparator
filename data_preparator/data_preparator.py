@@ -1,45 +1,61 @@
 import re
 
 import pandas as pd
+from pydantic import ValidationError
 
 from . import constants
 from .data_frame_separators import (
+    get_indices_and_info_from_errors,
     separate_drugs,
+    separate_incomplete_data,
     separate_medical_devices,
-    separate_rows_with_empty_cells_in_required_columns,
-    separate_rows_with_invalid_birth_date,
 )
+from .exceptions import MissingColumnsInDataFrameError
 from .utils.date import standardize_date_format
+from .utils.excel_file import (
+    apply_style,
+    convert_data_frame_to_workbook_of_openpyxl,
+    insert_rows_with_file_errors_into_workbook,
+)
+from .utils.validation import insert_row_errors_info_into_df_by_index
 from .validators import DataFrameValidator, validate_required_columns
 
 
 def process_data_frame(df):
     """Обрабатывает данные."""
-    remove_blank_rows(df)
+    remove_blank_rows_and_columns(df)
     primary_df_but_with_added_record_id_column = get_copy_of_df_with_added_record_id_column(df)
-    validate_required_columns(df)
+    try:
+        validate_required_columns(
+            data_frame=df,
+            required_column_headers=constants.COLUMNS_MAPPING.keys(),
+        )
+    except MissingColumnsInDataFrameError as error:
+        wb = convert_data_frame_to_workbook_of_openpyxl(df)
+        insert_rows_with_file_errors_into_workbook(wb, error)
+        apply_style(wb)
+        return wb
     drop_not_required_columns(df)
     rename_columns(df)
-    DataFrameValidator(data_frame=df.to_dict('records'))
+    try:
+        DataFrameValidator(data_frame=df.to_dict('records'))
+    except ValidationError as errors:
+        df, df_with_incomplete_data = separate_incomplete_data(df, errors)
+        indices_of_rows_with_invalid_data = get_indices_and_info_from_errors(errors)
+        insert_row_errors_info_into_df_by_index(df_with_incomplete_data, indices_of_rows_with_invalid_data)
     set_columns_order_based_on_columns_mapping(df)
     set_uniq_values_in_record_id_column(df)
     convert_mkb_columns_to_str(df)
     convert_nphies_code_and_service_name_to_str(df)
     change_commas_to_dots_in_float_columns(df)
     convert_date_columns_to_datetime_format(df)
-    df, df_with_empty_values = separate_rows_with_empty_cells_in_required_columns(df)
-    df, df_where_birth_date_is_more_than_service_date = separate_rows_with_invalid_birth_date(df)
     remove_zeros_from_left_side_of_nphies_codes(df)
     convert_gender_column_to_boolean_format(df)
     fill_empty_cells_in_quantity_column(df)
     df, df_with_medical_devices = separate_medical_devices(df)
     df, df_with_drugs = separate_drugs(df)
-    df_with_incomplete_data = pd.concat([
-        df_with_empty_values,
-        df_where_birth_date_is_more_than_service_date,
-    ])
     return {
-        'prepared_df': df,
+        'df_with_services': df,
         'df_with_medical_devices': df_with_medical_devices,
         'df_with_drugs': df_with_drugs,
         'df_with_incomplete_data': df_with_incomplete_data,
@@ -47,10 +63,11 @@ def process_data_frame(df):
     }
 
 
-def remove_blank_rows(df: pd.DataFrame) -> None:
+def remove_blank_rows_and_columns(df: pd.DataFrame) -> None:
     """Удаляет полностью пустые строки из data frame'а."""
     df.dropna(axis=0, how='all', inplace=True)
-    df.reset_index(inplace=True)
+    df = df[df.columns.dropna()]
+    df.reset_index(drop=True, inplace=True)
 
 
 def set_columns_order_based_on_columns_mapping(df: pd.DataFrame) -> None:
