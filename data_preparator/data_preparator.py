@@ -4,12 +4,7 @@ import pandas as pd
 from pydantic import ValidationError
 
 from . import constants
-from .data_frame_separators import (
-    get_indices_and_info_from_errors,
-    separate_drugs,
-    separate_incomplete_data,
-    separate_medical_devices,
-)
+from .data_frame_separators import separate_drugs, separate_incomplete_data, separate_medical_devices
 from .exceptions import MissingColumnsInDataFrameError
 from .utils.date import standardize_date_format
 from .utils.excel_file import (
@@ -17,7 +12,7 @@ from .utils.excel_file import (
     convert_data_frame_to_workbook_of_openpyxl,
     insert_rows_with_file_errors_into_workbook,
 )
-from .utils.validation import insert_row_errors_info_into_df_by_index
+from .utils.validation import get_indices_and_info_from_errors, insert_row_errors_info_into_df_by_index
 from .validators import DataFrameValidator, validate_required_columns
 
 
