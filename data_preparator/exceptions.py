@@ -11,7 +11,7 @@ class MissingColumnsInDataFrameError(ValueError):
 
     def __init__(self, missing_columns):
         self.missing_columns = missing_columns
-        self.message = 'There are missing columns in data frame: {0}'.format(
+        self.message = 'В дата фрейме отсутствуют обязательные столбцы: {0}'.format(
             ', '.join(self.missing_columns),
         )
         super().__init__(self.message)
