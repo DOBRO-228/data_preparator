@@ -4,13 +4,13 @@ from datetime import date, datetime
 from typing import List, Union
 
 import pandas as pd
-from data_preparator.exceptions import MissingColumnsInDataFrameError
 from dateutil import parser as date_parser
 from dateutil.parser import ParserError
 from pandas import Timestamp
 from pydantic import BaseModel, Field, validator
 
 from . import constants
+from .exceptions import MissingColumnsInDataFrameError
 
 
 class RowValidator(BaseModel):

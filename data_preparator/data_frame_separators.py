@@ -7,13 +7,14 @@ from pydantic import ValidationError
 
 from .utils.validation import get_indices_and_info_from_errors
 
+package_dir = os.path.abspath(os.path.dirname(__file__))
+
 
 def separate_drugs(df):
     """Отделяет лекарства в отдельный дата фрейм."""
-    path_to_file_with_drugs = os.path.abspath(
-        'auxiliary_files/Номенклатура_лекарств.xlsx',
+    df_with_drugs = pd.read_excel(
+        os.path.join(package_dir, 'auxiliary_files/Номенклатура_лекарств.xlsx'),
     )
-    df_with_drugs = pd.read_excel(path_to_file_with_drugs)
     df_with_drugs['CODE'] = df_with_drugs['CODE'].apply(
         lambda code: re.sub('^0*', '', code),
     )
