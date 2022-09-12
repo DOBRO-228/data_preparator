@@ -41,7 +41,8 @@ class RowValidator(BaseModel):
 
     @validator('SERVICE_NAME', pre=True)
     def service_name_and_nphies_not_empty_simultaneously(cls, value, values):
-        if value == 'nan' and values.get('NPHIES_CODE') == 'nan':
+        nphies_code = values.get('NPHIES_CODE')
+        if str(value) == 'nan' and str(nphies_code) == 'nan':
             raise ValueError("Один из параметров должен быть заполнен: 'SERVICE_NAME' или 'NPHIES_CODE'.")
         return value
 
