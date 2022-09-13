@@ -4,7 +4,7 @@
 import copy
 import time
 
-from data_preparator.data_preparator import prepare_data
+from .data_preparator import process_data_frame
 
 data_frames_to_prepare = []
 
@@ -15,10 +15,10 @@ def oversee(time_delay):
     """
     while True:
         time.sleep(int(time_delay))
-        copy_of_data_frames_to_enrich = copy.deepcopy(data_frames_to_prepare)
+        copy_of_data_frames_to_prepare = copy.deepcopy(data_frames_to_prepare)
         data_frames_to_prepare.clear()
-        for new_data_frame in copy_of_data_frames_to_enrich:
-            prepared_data_frames.append(prepare_data(new_data_frame))
+        for new_data_frame in copy_of_data_frames_to_prepare:
+            prepared_data_frames.append(process_data_frame(new_data_frame))
 
 
 prepared_data_frames = []

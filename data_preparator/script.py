@@ -5,8 +5,9 @@
 import os
 import sys
 
-from data_preparator.overseer import oversee
 from dotenv import load_dotenv
+
+from .overseer import oversee
 
 load_dotenv()
 
