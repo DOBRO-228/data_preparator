@@ -40,8 +40,7 @@ def process_data_frame(df):
         insert_row_errors_info_into_df_by_index(df_with_incomplete_data, indices_of_rows_with_invalid_data)
     set_columns_order_based_on_columns_mapping(df)
     set_uniq_values_in_record_id_column(df)
-    convert_mkb_columns_to_str(df)
-    convert_nphies_code_and_service_name_to_str(df)
+    convert_str_columns_to_str_format(df)
     change_commas_to_dots_in_float_columns(df)
     convert_date_columns_to_datetime_format(df)
     remove_zeros_from_left_side_of_nphies_codes(df)
@@ -111,17 +110,10 @@ def set_uniq_values_in_record_id_column(df):
         df['RECORD_ID'] = range(1, len(df.index) + 1)
 
 
-def convert_mkb_columns_to_str(df):
-    """Приводит к строке колонки с МКБ кодами."""
-    for mkb_column in constants.MKB_COLUMNS:
-        df[mkb_column] = df[mkb_column].astype(str)
-
-
-def convert_nphies_code_and_service_name_to_str(df):
-    """Приводит к строке колонки с НФИС кодом и Наименованием услуги."""
-    columns_to_convert = ('NPHIES_CODE', 'SERVICE_NAME')
-    for column_name in columns_to_convert:
-        df[column_name] = df[column_name].astype(str)
+def convert_str_columns_to_str_format(df):
+    """Приводит нужные колонки к строке."""
+    for column in constants.STR_COLUMNS:
+        df[column] = df[column].astype(str)
 
 
 def change_commas_to_dots_in_float_columns(df):
