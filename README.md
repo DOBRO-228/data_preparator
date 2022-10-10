@@ -116,7 +116,7 @@
 
 ### `Валидация`
 
-1. В строке не пустые значения в: 'INSURED_AGE_WHEN_SERVICED', 'INSURED_IS_MALE', 'SERVICE_DATE', 'POLICY_NUMBER'
+1. В строке не пустые значения в колонках: 'INSURED_ID', 'INSURED_AGE_WHEN_SERVICED', 'INSURED_IS_MALE', 'SERVICE_DATE', 'POLICY_NUMBER'
 2. В строке одновременно не пустые значения в: 'SERVICE_NAME', 'NPHIES_CODE'
 3. Дата может быть распознана в `колонках с датами`
 4. Дата не может быть в будущем в `колонках с датами`
