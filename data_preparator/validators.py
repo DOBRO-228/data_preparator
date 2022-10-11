@@ -39,13 +39,6 @@ class RowValidator(BaseModel):
             raise ValueError('Это поле не может быть пустым.')
         return value
 
-    @validator('SERVICE_NAME', pre=True)
-    def service_name_and_nphies_not_empty_simultaneously(cls, value, values):
-        nphies_code = values.get('NPHIES_CODE')
-        if str(value) == 'nan' and str(nphies_code) == 'nan':
-            raise ValueError("Один из параметров должен быть заполнен: 'SERVICE_NAME' или 'NPHIES_CODE'.")
-        return value
-
     @validator('INSURED_AGE_WHEN_SERVICED', 'SERVICE_DATE', pre=True)
     def date_can_be_parsed_in_columns_with_dates(cls, value):
         if isinstance(value, (Timestamp, datetime, date)):

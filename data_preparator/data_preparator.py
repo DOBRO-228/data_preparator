@@ -1,5 +1,3 @@
-import re
-
 import pandas as pd
 from pydantic import ValidationError
 
@@ -43,7 +41,6 @@ def process_data_frame(df):
     convert_str_columns_to_str_format(df)
     change_commas_to_dots_in_float_columns(df)
     convert_date_columns_to_datetime_format(df)
-    remove_zeros_from_left_side_of_nphies_codes(df)
     convert_gender_column_to_boolean_format(df)
     fill_empty_cells_in_quantity_column(df)
     df, df_with_medical_devices = separate_medical_devices(df)
@@ -68,13 +65,6 @@ def set_columns_order_based_on_columns_mapping(df: pd.DataFrame) -> None:
     """Устанавливает в data frame'е такой же порядок столбцов, как и в constants.COLUMNS_MAPPING."""
     column_headers_in_right_order = constants.COLUMNS_MAPPING.values()
     df = df[column_headers_in_right_order]
-
-
-def remove_zeros_from_left_side_of_nphies_codes(df):
-    """Убирает нули с левой стороны НФИС кода."""
-    df['NPHIES_CODE'] = df['NPHIES_CODE'].apply(
-        lambda code: re.sub('^0*', '', code),
-    )
 
 
 def get_copy_of_df_with_added_record_id_column(df):
