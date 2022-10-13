@@ -29,7 +29,7 @@ class RowValidator(BaseModel):
     SECOND_MKB_CODE: str
     DISCHARGE_MKB_CODE: str
     OTHER_MKB_CODE: str
-    POLICY_NUMBER: str = Field(...)
+    POLICY_NUMBER: str
     SPECIALITY_DESCRIPTION: str
     SERVICE_AMOUNT: str
 
