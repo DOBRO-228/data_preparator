@@ -36,6 +36,8 @@ def process_data_frame(df):
         df, df_with_incomplete_data = separate_incomplete_data(df, errors)
         indices_of_rows_with_invalid_data = get_indices_and_info_from_errors(errors)
         insert_row_errors_info_into_df_by_index(df_with_incomplete_data, indices_of_rows_with_invalid_data)
+    else:
+        df_with_incomplete_data = pd.DataFrame()
     set_columns_order_based_on_columns_mapping(df)
     set_uniq_values_in_record_id_column(df)
     convert_str_columns_to_str_format(df)
