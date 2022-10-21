@@ -1,5 +1,3 @@
-import types
-
 import numpy as np
 
 NAN_VALUES = (
@@ -16,30 +14,29 @@ MKB_COLUMNS = (
 )
 
 STR_COLUMNS = MKB_COLUMNS + ('INSURED_ID', 'SERVICE_NAME', 'LPU_ID')
-
+INT_COLUMNS = ()
 FLOAT_COLUMNS = (
     'SERVICE_AMOUNT',
     'POLICY_NUMBER',
 )
 
 NOT_EMPTY_REQUIRED_COLUMNS = (
-    'INSURED_AGE_WHEN_SERVICED',
     'INSURED_IS_MALE',
     'SERVICE_DATE',
+    'POLICY_NUMBER',
     'INSURED_ID',
     'SERVICE_NAME',
 )
 
 COLUMNS_WITH_DATES = (
-    'INSURED_AGE_WHEN_SERVICED',
     'SERVICE_DATE',
 )
 
-COLUMNS_MAPPING = types.MappingProxyType({
+
+columns_mapping = {
     'SN': 'RECORD_ID',
     'Provider Pin': 'LPU_ID',
     'Patient ID': 'INSURED_ID',
-    'DOB[HCP]': 'INSURED_AGE_WHEN_SERVICED',
     'Gender[HCP]': 'INSURED_IS_MALE',
     'Nphies Standard Code': 'NPHIES_CODE',
     'Service Type': 'PRODUCT_TYPE',
@@ -54,4 +51,4 @@ COLUMNS_MAPPING = types.MappingProxyType({
     'Policy Number': 'POLICY_NUMBER',
     'Speciality Description': 'SPECIALITY_DESCRIPTION',
     'Unit Price': 'SERVICE_AMOUNT',
-})
+}

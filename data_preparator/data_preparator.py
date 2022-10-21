@@ -18,10 +18,11 @@ def process_data_frame(df):
     """Обрабатывает данные."""
     remove_blank_rows_and_columns(df)
     primary_df_but_with_added_record_id_column = get_copy_of_df_with_added_record_id_column(df)
+    set_some_required_columns(df)
     try:
         validate_required_columns(
             data_frame=df,
-            required_column_headers=constants.COLUMNS_MAPPING.keys(),
+            required_column_headers=constants.columns_mapping.keys(),
         )
     except MissingColumnsInDataFrameError as error:
         wb = convert_data_frame_to_workbook_of_openpyxl(df)
@@ -40,6 +41,7 @@ def process_data_frame(df):
         df_with_incomplete_data = pd.DataFrame()
     set_columns_order_based_on_columns_mapping(df)
     set_uniq_values_in_record_id_column(df)
+    convert_int_columns_to_int_format(df)
     convert_str_columns_to_str_format(df)
     change_commas_to_dots_in_float_columns(df)
     convert_date_columns_to_datetime_format(df)
@@ -56,6 +58,23 @@ def process_data_frame(df):
     }
 
 
+def set_some_required_columns(df: pd.DataFrame) -> None:
+    """В зависимости от входящих колонок, изменяет переменные."""
+    current_columns = df.columns.values.tolist()
+    if 'Age' in current_columns:
+        constants.INT_COLUMNS += ('AGE', )
+        constants.NOT_EMPTY_REQUIRED_COLUMNS += ('AGE', )
+        constants.columns_mapping.update({
+            'Age': 'AGE',
+        })
+    elif 'DOB[HCP]' in current_columns:
+        constants.NOT_EMPTY_REQUIRED_COLUMNS += ('INSURED_AGE_WHEN_SERVICED', )
+        constants.COLUMNS_WITH_DATES += ('INSURED_AGE_WHEN_SERVICED', )
+        constants.columns_mapping.update({
+            'DOB[HCP]': 'INSURED_AGE_WHEN_SERVICED',
+        })
+
+
 def remove_blank_rows_and_columns(df: pd.DataFrame) -> None:
     """Удаляет полностью пустые строки из data frame'а."""
     df.dropna(axis=0, how='all', inplace=True)
@@ -65,7 +84,7 @@ def remove_blank_rows_and_columns(df: pd.DataFrame) -> None:
 
 def set_columns_order_based_on_columns_mapping(df: pd.DataFrame) -> None:
     """Устанавливает в data frame'е такой же порядок столбцов, как и в constants.COLUMNS_MAPPING."""
-    column_headers_in_right_order = constants.COLUMNS_MAPPING.values()
+    column_headers_in_right_order = constants.columns_mapping.values()
     df = df[column_headers_in_right_order]
 
 
@@ -80,14 +99,14 @@ def get_copy_of_df_with_added_record_id_column(df):
 def drop_not_required_columns(df):
     """Удаляет ненужные колонки."""
     current_columns = df.columns.values.tolist()
-    columns_to_drop = list(set(current_columns) - set(constants.COLUMNS_MAPPING.keys()))
+    columns_to_drop = list(set(current_columns) - set(constants.columns_mapping.keys()))
     df.drop(columns_to_drop, axis='columns', inplace=True)
 
 
 def rename_columns(df):
     """Переименовывает колонки."""
     df.rename(
-        columns=constants.COLUMNS_MAPPING,
+        columns=constants.columns_mapping,
         inplace=True,
     )
 
@@ -106,6 +125,12 @@ def convert_str_columns_to_str_format(df):
     """Приводит нужные колонки к строке."""
     for column in constants.STR_COLUMNS:
         df[column] = df[column].astype(str)
+
+
+def convert_int_columns_to_int_format(df):
+    """Приводит нужные колонки к числовому формату."""
+    for column in constants.INT_COLUMNS:
+        df[column] = df[column].astype(int)
 
 
 def change_commas_to_dots_in_float_columns(df):

@@ -1,7 +1,7 @@
 """Модуль валидаторов."""
 
 from datetime import date, datetime
-from typing import List, Union
+from typing import List, Optional, Union
 
 import pandas as pd
 from dateutil import parser as date_parser
@@ -17,7 +17,8 @@ class RowValidator(BaseModel):
     RECORD_ID: str
     LPU_ID: str
     INSURED_ID: str
-    INSURED_AGE_WHEN_SERVICED: Union[datetime, date, str] = Field(...)
+    INSURED_AGE_WHEN_SERVICED: Union[datetime, date, str, None]
+    AGE: Optional[int]
     INSURED_IS_MALE: str = Field(...)
     NPHIES_CODE: str
     PRODUCT_TYPE: str
@@ -38,6 +39,27 @@ class RowValidator(BaseModel):
         if value == '' or pd.isna(value):
             raise ValueError('Это поле не может быть пустым.')
         return value
+
+    @validator('AGE', pre=True)
+    def check_age_can_be_parsed_as_integer(cls, value):
+        try:
+            int(value)
+        except ValueError:
+            error_message = "'{0}' Возраст не распознаётся.".format(value)
+            raise ValueError(error_message)
+        return value
+
+    @validator('AGE', pre=True)
+    def check_age_is_within_the_normal_range(cls, value):
+        max_human_being_age = 120
+        try:
+            age = int(value)
+        except ValueError:
+            return value
+        if 0 <= age <= max_human_being_age:
+            return value
+        error_message = "'{0}' Возраст либо меньше 0, либо больше 120.".format(value)
+        raise ValueError(error_message)
 
     @validator('INSURED_AGE_WHEN_SERVICED', 'SERVICE_DATE', pre=True)
     def date_can_be_parsed_in_columns_with_dates(cls, value):
