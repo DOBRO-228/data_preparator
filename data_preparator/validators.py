@@ -4,6 +4,7 @@ from datetime import date, datetime
 from typing import List, Optional, Union
 
 import pandas as pd
+from data_preparator.utils.strings import strip_and_set_lower_each_string_in_list
 from dateutil import parser as date_parser
 from dateutil.parser import ParserError
 from pandas import Timestamp
@@ -144,6 +145,8 @@ class DataFrameValidator(BaseModel):
 def validate_required_columns(data_frame: pd.DataFrame, required_column_headers: list) -> None:
     """Проверяет наличие обязательных колонок в data frame'е."""
     current_column_headers = data_frame.columns.values.tolist()
+    current_column_headers = strip_and_set_lower_each_string_in_list(current_column_headers)
+    required_column_headers = strip_and_set_lower_each_string_in_list(required_column_headers)
     missing_columns = list(set(required_column_headers) - set(current_column_headers))
     if missing_columns:
         raise MissingColumnsInDataFrameError(missing_columns)

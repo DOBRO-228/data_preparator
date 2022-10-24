@@ -10,6 +10,7 @@ from .utils.excel_file import (
     convert_data_frame_to_workbook_of_openpyxl,
     insert_rows_with_file_errors_into_workbook,
 )
+from .utils.strings import strip_and_set_lower_each_string_in_list
 from .utils.validation import get_indices_and_info_from_errors, insert_row_errors_info_into_df_by_index
 from .validators import DataFrameValidator, validate_required_columns
 
@@ -18,7 +19,7 @@ def process_data_frame(df):
     """Обрабатывает данные."""
     remove_blank_rows_and_columns(df)
     primary_df_but_with_added_record_id_column = get_copy_of_df_with_added_record_id_column(df)
-    set_some_required_columns(df)
+    set_constants_depending_on_column_headers(df)
     try:
         validate_required_columns(
             data_frame=df,
@@ -58,16 +59,17 @@ def process_data_frame(df):
     }
 
 
-def set_some_required_columns(df: pd.DataFrame) -> None:
+def set_constants_depending_on_column_headers(df: pd.DataFrame) -> None:
     """В зависимости от входящих колонок, изменяет переменные."""
     current_columns = df.columns.values.tolist()
-    if 'Age' in current_columns:
+    current_columns = strip_and_set_lower_each_string_in_list(current_columns)
+    if 'age' in current_columns:
         constants.INT_COLUMNS += ('AGE', )
         constants.NOT_EMPTY_REQUIRED_COLUMNS += ('AGE', )
         constants.columns_mapping.update({
             'Age': 'AGE',
         })
-    elif 'DOB[HCP]' in current_columns:
+    elif 'dob[hcp]' in current_columns:
         constants.NOT_EMPTY_REQUIRED_COLUMNS += ('INSURED_AGE_WHEN_SERVICED', )
         constants.COLUMNS_WITH_DATES += ('INSURED_AGE_WHEN_SERVICED', )
         constants.columns_mapping.update({
@@ -99,7 +101,16 @@ def get_copy_of_df_with_added_record_id_column(df):
 def drop_not_required_columns(df):
     """Удаляет ненужные колонки."""
     current_columns = df.columns.values.tolist()
-    columns_to_drop = list(set(current_columns) - set(constants.columns_mapping.keys()))
+    striped_and_lower_current_column_headers = strip_and_set_lower_each_string_in_list(current_columns)
+    required_columns = strip_and_set_lower_each_string_in_list(constants.columns_mapping.keys())
+    lower_header_columns_to_drop = list(
+        set(striped_and_lower_current_column_headers) - set(required_columns),
+    )
+    columns_to_drop = [
+        header
+        for header in current_columns
+        if header.strip().lower() in lower_header_columns_to_drop
+    ]
     df.drop(columns_to_drop, axis='columns', inplace=True)
 
 
