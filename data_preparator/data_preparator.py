@@ -4,7 +4,7 @@ import pandas as pd
 from pydantic import ValidationError
 
 from . import constants
-from .data_frame_separators import separate_drugs, separate_incomplete_data, separate_medical_devices
+from .data_frame_separators import separate_devices, separate_drugs, separate_incomplete_data
 from .exceptions import MissingColumnsInDataFrameError
 from .utils.date import standardize_date_format
 from .utils.excel_file import (
@@ -17,15 +17,14 @@ from .utils.validation import get_indices_and_info_from_errors, insert_row_error
 from .validators import DataFrameValidator, validate_required_columns
 
 
-def process_data_frame(df):
+def process_data_frame(df: pd.DataFrame):
     """Обрабатывает данные."""
     remove_blank_rows_and_columns(df)
     primary_df_but_with_added_record_id_column = get_copy_of_df_with_added_record_id_column(df)
-    set_constants_depending_on_column_headers(df)
     try:
         validate_required_columns(
             data_frame=df,
-            required_column_headers=constants.columns_mapping.keys(),
+            required_column_headers=constants.COLUMNS_MAPPING.keys(),
         )
     except MissingColumnsInDataFrameError as error:
         wb = convert_data_frame_to_workbook_of_openpyxl(df)
@@ -43,15 +42,14 @@ def process_data_frame(df):
     else:
         df_with_incomplete_data = pd.DataFrame()
     set_columns_order_based_on_columns_mapping(df)
-    set_uniq_values_in_record_id_column(df)
+    df = add_record_id_column(df)
     convert_int_columns_to_int_format(df)
     convert_str_columns_to_str_format(df)
-    change_commas_to_dots_in_float_columns(df)
+    convert_float_columns_to_float_format(df)
     convert_date_columns_to_datetime_format(df)
     remove_zeros_from_left_side_of_nphies_codes(df)
-    convert_gender_column_to_boolean_format(df)
     fill_empty_cells_in_quantity_column(df)
-    df, df_with_medical_devices = separate_medical_devices(df)
+    df, df_with_medical_devices = separate_devices(df)
     df, df_with_drugs = separate_drugs(df)
     return {
         'df_with_services': df,
@@ -60,24 +58,6 @@ def process_data_frame(df):
         'df_with_incomplete_data': df_with_incomplete_data,
         'primary_df_but_with_added_record_id_column': primary_df_but_with_added_record_id_column,
     }
-
-
-def set_constants_depending_on_column_headers(df: pd.DataFrame) -> None:
-    """В зависимости от входящих колонок, изменяет переменные."""
-    current_columns = df.columns.values.tolist()
-    current_columns = strip_and_set_lower_each_string_in_list(current_columns)
-    if 'age' in current_columns:
-        constants.INT_COLUMNS += ('AGE', )
-        constants.NOT_EMPTY_REQUIRED_COLUMNS += ('AGE', )
-        constants.columns_mapping.update({
-            'Age': 'AGE',
-        })
-    elif 'dob[hcp]' in current_columns:
-        constants.NOT_EMPTY_REQUIRED_COLUMNS += ('INSURED_AGE_WHEN_SERVICED', )
-        constants.COLUMNS_WITH_DATES += ('INSURED_AGE_WHEN_SERVICED', )
-        constants.columns_mapping.update({
-            'DOB[HCP]': 'INSURED_AGE_WHEN_SERVICED',
-        })
 
 
 def remove_blank_rows_and_columns(df: pd.DataFrame) -> None:
@@ -89,7 +69,7 @@ def remove_blank_rows_and_columns(df: pd.DataFrame) -> None:
 
 def set_columns_order_based_on_columns_mapping(df: pd.DataFrame) -> None:
     """Устанавливает в data frame'е такой же порядок столбцов, как и в constants.COLUMNS_MAPPING."""
-    column_headers_in_right_order = constants.columns_mapping.values()
+    column_headers_in_right_order = constants.COLUMNS_MAPPING.values()
     df = df[column_headers_in_right_order]
 
 
@@ -103,16 +83,14 @@ def remove_zeros_from_left_side_of_nphies_codes(df):
 def get_copy_of_df_with_added_record_id_column(df):
     """Отдаёт копию оригинального дата фрейм, в который добавлена только колонка RECORD_ID с уникальными значениями."""
     df_for_results = df.copy()
-    df_for_results['RECORD_ID'] = df_for_results['SN']
-    set_uniq_values_in_record_id_column(df_for_results)
-    return df_for_results
+    return add_record_id_column(df_for_results)
 
 
 def drop_not_required_columns(df):
     """Удаляет ненужные колонки."""
     current_columns = df.columns.values.tolist()
     striped_and_lower_current_column_headers = strip_and_set_lower_each_string_in_list(current_columns)
-    required_columns = strip_and_set_lower_each_string_in_list(constants.columns_mapping.keys())
+    required_columns = strip_and_set_lower_each_string_in_list(constants.COLUMNS_MAPPING.keys())
     lower_header_columns_to_drop = list(
         set(striped_and_lower_current_column_headers) - set(required_columns),
     )
@@ -127,19 +105,17 @@ def drop_not_required_columns(df):
 def rename_columns(df):
     """Переименовывает колонки."""
     df.rename(
-        columns=constants.columns_mapping,
+        columns=constants.COLUMNS_MAPPING,
         inplace=True,
     )
 
 
-def set_uniq_values_in_record_id_column(df):
-    """Делает каждое значение в колонке RECORD_ID уникальным.
-
-    Если в колонке есть неуникальные значения, то перезаписывает все
-    значения колонки в цифры от нуля до длины дата фрейма + 1
-    """
-    if not df['RECORD_ID'].is_unique:
-        df['RECORD_ID'] = range(1, len(df.index) + 1)
+def add_record_id_column(df):
+    """Создаёт колонку RECORD_ID с уникальным идентификатором строки внутри."""
+    df['RECORD_ID'] = range(1, len(df.index) + 1)
+    cols = df.columns.tolist()
+    cols.insert(0, cols.pop(cols.index('RECORD_ID')))
+    return df.reindex(columns=cols, copy=False)
 
 
 def convert_str_columns_to_str_format(df):
@@ -154,8 +130,8 @@ def convert_int_columns_to_int_format(df):
         df[column] = df[column].astype(int)
 
 
-def change_commas_to_dots_in_float_columns(df):
-    """Меняет запятые на точки в колонках с форматом float."""
+def convert_float_columns_to_float_format(df):
+    """Приводит нужные колонки к float формату."""
     for column in constants.FLOAT_COLUMNS:
         df[column].replace(',', '.', regex=True, inplace=True)
         df[column] = df[column].astype(float)
@@ -166,14 +142,6 @@ def convert_date_columns_to_datetime_format(df):
     for column in constants.COLUMNS_WITH_DATES:
         df[column] = df[column].apply(standardize_date_format)
         df[column] = pd.to_datetime(df[column], format='%d/%m/%Y', errors='coerce')
-
-
-def convert_gender_column_to_boolean_format(df):
-    """Приводит к булевому значению колонку с полом пациента."""
-    males = ['M', 'm', 'Male', 'male']
-    df['INSURED_IS_MALE'] = df['INSURED_IS_MALE'].apply(
-        lambda gender: True if gender in males else False,
-    )
 
 
 def fill_empty_cells_in_quantity_column(df):

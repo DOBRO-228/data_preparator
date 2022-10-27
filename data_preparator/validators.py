@@ -15,25 +15,21 @@ from .exceptions import MissingColumnsInDataFrameError
 
 
 class RowValidator(BaseModel):
-    RECORD_ID: str
-    LPU_ID: str
-    INSURED_ID: str
-    INSURED_AGE_WHEN_SERVICED: Union[datetime, date, str, None]
-    AGE: Optional[int]
+    LPU_ID: str = Field(...)
+    INSURED_ID: str = Field(...)
+    INSURED_AGE_WHEN_SERVICED: Union[datetime, date, str] = Field(...)
     INSURED_IS_MALE: str = Field(...)
-    NPHIES_CODE: str
-    PRODUCT_TYPE: str
-    SERVICE_NAME: str
+    SERVICE_NAME: str = Field(...)
     SERVICE_DATE: Union[datetime, date, str] = Field(...)
-    SERVICE_QUANTITY: str
-    SERVICE_PROVIDER_CODE: str
-    MKB_CODE: str
-    SECOND_MKB_CODE: str
-    DISCHARGE_MKB_CODE: str
-    OTHER_MKB_CODE: str
-    POLICY_NUMBER: str
-    SPECIALITY_DESCRIPTION: str
-    SERVICE_AMOUNT: str
+    PRODUCT_TYPE: Optional[str]
+    SERVICE_QUANTITY: str = Field(...)
+    SERVICE_AMOUNT: str = Field(...)
+    NPHIES_CODE: Optional[str]
+    MKB_CODE: str = Field(...)
+    SECOND_MKB_CODE: Optional[str]
+    TOOTH: Optional[str]
+    BENEFIT_TYPE: str = Field(...)
+    DOCTOR_NAME: Optional[str]
 
     @validator(*constants.NOT_EMPTY_REQUIRED_COLUMNS, pre=True)
     def check_cells_in_required_columns_are_not_empty(cls, value):
@@ -41,32 +37,11 @@ class RowValidator(BaseModel):
             raise ValueError('Это поле не может быть пустым.')
         return value
 
-    @validator('AGE', pre=True)
-    def check_age_can_be_parsed_as_integer(cls, value):
-        try:
-            int(value)
-        except ValueError:
-            error_message = "'{0}' Возраст не распознаётся.".format(value)
-            raise ValueError(error_message)
-        return value
-
-    @validator('AGE', pre=True)
-    def check_age_is_within_the_normal_range(cls, value):
-        max_human_being_age = 120
-        try:
-            age = int(value)
-        except ValueError:
-            return value
-        if 0 <= age <= max_human_being_age:
-            return value
-        error_message = "'{0}' Возраст либо меньше 0, либо больше 120.".format(value)
-        raise ValueError(error_message)
-
-    @validator('SERVICE_NAME', pre=True)
-    def service_name_and_nphies_not_empty_simultaneously(cls, value, values):
-        nphies_code = values.get('NPHIES_CODE')
-        if str(value) == 'nan' and str(nphies_code) == 'nan':
-            raise ValueError("Один из параметров должен быть заполнен: 'SERVICE_NAME' или 'NPHIES_CODE'.")
+    @validator('NPHIES_CODE', pre=True)
+    def product_type_and_nphies_not_empty_simultaneously(cls, value, values):
+        product_type = values.get('PRODUCT_TYPE')
+        if value is None and product_type is None:
+            raise ValueError("Один из параметров должен быть заполнен: 'PRODUCT_TYPE' или 'NPHIES_CODE'.")
         return value
 
     @validator('INSURED_AGE_WHEN_SERVICED', 'SERVICE_DATE', pre=True)

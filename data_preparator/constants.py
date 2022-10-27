@@ -1,3 +1,5 @@
+import types
+
 import numpy as np
 
 NAN_VALUES = (
@@ -9,51 +11,63 @@ EXPECTED_SEPARATORS_IN_DATES = (' ', '/', '\\', '-')
 MKB_COLUMNS = (
     'MKB_CODE',
     'SECOND_MKB_CODE',
-    'DISCHARGE_MKB_CODE',
-    'OTHER_MKB_CODE',
 )
 
-STR_COLUMNS = MKB_COLUMNS + ('INSURED_ID', 'NPHIES_CODE', 'SERVICE_NAME', 'LPU_ID')
-INT_COLUMNS = ()
 
-FLOAT_COLUMNS = (
-    'SERVICE_AMOUNT',
-    'POLICY_NUMBER',
+# Column types
+
+STR_COLUMNS = MKB_COLUMNS + (
+    'LPU_ID',
+    'INSURED_ID',
+    'SERVICE_NAME',
+    'PRODUCT_TYPE',
+    'NPHIES_CODE',
+    'TOOTH',
+    'BENEFIT_TYPE',
+    'DOCTOR_NAME',
+)
+INT_COLUMNS = ('SERVICE_QUANTITY', )
+
+FLOAT_COLUMNS = ('SERVICE_AMOUNT', )
+
+COLUMNS_WITH_DATES = (
+    'INSURED_AGE_WHEN_SERVICED',
+    'SERVICE_DATE',
 )
 
 NOT_EMPTY_REQUIRED_COLUMNS = (
-    'INSURED_IS_MALE',
-    'SERVICE_DATE',
-    'POLICY_NUMBER',
+    'LPU_ID',
     'INSURED_ID',
+    'INSURED_AGE_WHEN_SERVICED',
+    'INSURED_IS_MALE',
+    'SERVICE_NAME',
+    'SERVICE_DATE',
+    'SERVICE_QUANTITY',
+    'SERVICE_AMOUNT',
+    'MKB_CODE',
+    'BENEFIT_TYPE',
 )
 
 NOT_EMPTY_REQUIRED_COLUMNS_SIMULTANEOUSLY = (
-    'SERVICE_NAME',
+    'PRODUCT_TYPE',
     'NPHIES_CODE',
 )
 
-COLUMNS_WITH_DATES = (
-    'SERVICE_DATE',
-)
 
-
-columns_mapping = {
-    'SN': 'RECORD_ID',
-    'Provider Pin': 'LPU_ID',
-    'Patient ID': 'INSURED_ID',
-    'Gender[HCP]': 'INSURED_IS_MALE',
-    'Nphies Standard Code': 'NPHIES_CODE',
-    'Service Type': 'PRODUCT_TYPE',
-    'Service Description': 'SERVICE_NAME',
-    'Service Date': 'SERVICE_DATE',
-    'Requested Quantity': 'SERVICE_QUANTITY',
-    'Service Provider Code': 'SERVICE_PROVIDER_CODE',
-    'Principal Diagnosis Code': 'MKB_CODE',
-    'Secondary Diagnosis Code': 'SECOND_MKB_CODE',
-    'Discharge Diagnosis Code': 'DISCHARGE_MKB_CODE',
-    'Other Diagnosis Code': 'OTHER_MKB_CODE',
-    'Policy Number': 'POLICY_NUMBER',
-    'Speciality Description': 'SPECIALITY_DESCRIPTION',
-    'Unit Price': 'SERVICE_AMOUNT',
-}
+COLUMNS_MAPPING = types.MappingProxyType({
+    'provider_id': 'LPU_ID',
+    'member_id': 'INSURED_ID',
+    'dob': 'INSURED_AGE_WHEN_SERVICED',
+    'gender': 'INSURED_IS_MALE',
+    'service_name': 'SERVICE_NAME',
+    'service_date': 'SERVICE_DATE',
+    'service_type': 'PRODUCT_TYPE',
+    'service_quantity': 'SERVICE_QUANTITY',
+    'service_amount': 'SERVICE_AMOUNT',
+    'nphies_code': 'NPHIES_CODE',
+    'icd10_code': 'MKB_CODE',
+    'icd10_code_secondary': 'SECOND_MKB_CODE',
+    'tooth': 'TOOTH',
+    'benefit_type': 'BENEFIT_TYPE',
+    'doctor_name': 'DOCTOR_NAME',
+})
