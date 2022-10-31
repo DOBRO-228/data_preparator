@@ -25,9 +25,9 @@ def get_indices_and_info_from_errors(errors: ValidationError) -> dict:
 def insert_row_errors_info_into_df_by_index(df: pd.DataFrame, indices_of_rows_with_invalid_data: dict) -> None:
     df['ERRORS'] = ''
     for df_index, errors in indices_of_rows_with_invalid_data.items():
-        cell_with_row_errors = df.loc[df_index, 'ERRORS']
         for error in errors:
+            cell_with_row_errors = df.loc[df_index, 'ERRORS']
             if cell_with_row_errors == '':
                 df.at[df_index, 'ERRORS'] = [error]
             else:
-                df.at[df_index, 'ERRORS'] += error
+                df.at[df_index, 'ERRORS'] += [error]
