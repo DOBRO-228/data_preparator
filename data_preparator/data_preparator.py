@@ -37,6 +37,7 @@ def process_data_frame(df: pd.DataFrame):
         DataFrameValidator(data_frame=df.to_dict('records'))
     except ValidationError as errors:
         df, df_with_incomplete_data = separate_incomplete_data(df, errors)
+        df_with_incomplete_data = add_record_id_column(df_with_incomplete_data)
         indices_of_rows_with_invalid_data = get_indices_and_info_from_errors(errors)
         insert_row_errors_info_into_df_by_index(df_with_incomplete_data, indices_of_rows_with_invalid_data)
     else:
