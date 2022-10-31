@@ -52,6 +52,7 @@ def process_data_frame(df: pd.DataFrame):
     convert_str_columns_to_str_format(df)
     convert_float_columns_to_float_format(df)
     convert_date_columns_to_datetime_format(df)
+    convert_gender_column_to_boolean_format(df)
     remove_zeros_from_left_side_of_nphies_codes(df)
     fill_empty_cells_in_quantity_column(df)
     change_service_type_val_according_to_mapping(df)
@@ -186,3 +187,11 @@ def enrich_by_nphies_codes(df: pd.DataFrame):
         else service_name_and_nphies[1]
         for service_name_and_nphies in list(zipped)
     ]
+
+
+def convert_gender_column_to_boolean_format(df):
+    """Приводит к булевому значению колонку с полом пациента."""
+    males = ['M', 'm', 'Male', 'male']
+    df['INSURED_IS_MALE'] = df['INSURED_IS_MALE'].apply(
+        lambda gender: True if gender in males else False,
+    )
