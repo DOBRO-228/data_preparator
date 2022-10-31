@@ -11,7 +11,11 @@ package_dir = os.path.abspath(os.path.dirname(__file__))
 
 
 def separate_drugs(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    drugs = pd.read_excel('auxiliary_files/Номенклатура_лекарств.xlsx')
+    path_to_file = os.path.join(
+        package_dir,
+        'auxiliary_files/Номенклатура_лекарств.xlsx',
+    )
+    drugs = pd.read_excel(path_to_file)
     drugs['CODE'] = drugs['CODE'].apply(
         lambda code: re.sub('^0*', '', code),
     )

@@ -1,3 +1,4 @@
+import os
 import re
 
 import pandas as pd
@@ -16,12 +17,15 @@ from .utils.strings import strip_and_set_lower_each_string_in_list
 from .utils.validation import get_indices_and_info_from_errors, insert_row_errors_info_into_df_by_index
 from .validators import DataFrameValidator, validate_required_columns
 
+package_dir = os.path.abspath(os.path.dirname(__file__))
+
 
 def process_data_frame(df: pd.DataFrame):
     """Обрабатывает данные."""
     remove_blank_rows_and_columns(df)
     primary_df_but_with_added_record_id_column = get_copy_of_df_with_added_record_id_column(df)
     df = add_record_id_column(df)
+    df.columns = df.columns.str.strip()
     try:
         validate_required_columns(
             data_frame=df,
@@ -34,6 +38,7 @@ def process_data_frame(df: pd.DataFrame):
         return wb
     drop_not_required_columns(df)
     rename_columns(df)
+    enrich_by_nphies_codes(df)
     try:
         DataFrameValidator(data_frame=df.to_dict('records'))
     except ValidationError as errors:
@@ -49,6 +54,8 @@ def process_data_frame(df: pd.DataFrame):
     convert_date_columns_to_datetime_format(df)
     remove_zeros_from_left_side_of_nphies_codes(df)
     fill_empty_cells_in_quantity_column(df)
+    change_service_type_val_according_to_mapping(df)
+    change_benefit_type_val_according_to_mapping(df)
     df, df_with_medical_devices = separate_devices(df)
     df, df_with_drugs = separate_drugs(df)
     return {
@@ -151,3 +158,31 @@ def fill_empty_cells_in_quantity_column(df):
     df['SERVICE_QUANTITY'] = df['SERVICE_QUANTITY'].apply(
         lambda quantity: 1 if quantity in constants.NAN_VALUES or quantity < 1 else quantity,
     )
+
+
+def change_service_type_val_according_to_mapping(df: pd.DataFrame) -> None:
+    """Изменяет некоторые значения в колонке 'SERVICE_TYPE_MAPPING' согласно маппингу."""
+    df['PRODUCT_TYPE'] = df['PRODUCT_TYPE'].replace(constants.SERVICE_TYPE_MAPPING)
+
+
+def change_benefit_type_val_according_to_mapping(df: pd.DataFrame) -> None:
+    """Изменяет некоторые значения в колонке 'BENEFIT_TYPE' согласно маппингу."""
+    df['BENEFIT_TYPE'] = df['BENEFIT_TYPE'].replace(constants.BENEFIT_MAPPING)
+
+
+def enrich_by_nphies_codes(df: pd.DataFrame):
+    path_to_file = os.path.join(
+        package_dir,
+        'auxiliary_files/Маппинг_название услуги_к_нфис_коду.xlsx',
+    )
+    service_name_to_nphies_code_mapping = pd.read_excel(path_to_file)
+    mapping_as_dict = service_name_to_nphies_code_mapping.set_index('SERVICE_NAME').to_dict()['NPHIES_CODE']
+
+    zipped = zip(df['SERVICE_NAME'], df['NPHIES_CODE'])
+
+    df['NPHIES_CODE'] = [
+        mapping_as_dict.get(service_name_and_nphies[0])
+        if str(service_name_and_nphies[1]) == 'nan' and service_name_and_nphies[0] in mapping_as_dict.keys()
+        else service_name_and_nphies[1]
+        for service_name_and_nphies in list(zipped)
+    ]

@@ -40,7 +40,7 @@ class RowValidator(BaseModel):
     @validator('NPHIES_CODE', pre=True)
     def product_type_and_nphies_not_empty_simultaneously(cls, value, values):
         product_type = values.get('PRODUCT_TYPE')
-        if value is None and product_type is None:
+        if (value is None and product_type is None) or (str(value) == 'nan' and str(product_type) == 'nan'):
             raise ValueError("Один из параметров должен быть заполнен: 'PRODUCT_TYPE' или 'NPHIES_CODE'.")
         return value
 

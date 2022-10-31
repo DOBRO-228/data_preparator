@@ -53,6 +53,15 @@ NOT_EMPTY_REQUIRED_COLUMNS_SIMULTANEOUSLY = (
     'NPHIES_CODE',
 )
 
+BENEFIT_MAPPING = types.MappingProxyType({
+    'OT': 'H-OP',
+    'IN': 'H-IP',
+})
+
+SERVICE_TYPE_MAPPING = types.MappingProxyType({
+    'INJC': 'MEDS',
+})
+
 
 COLUMNS_MAPPING = types.MappingProxyType({
     'provider_id': 'LPU_ID',
