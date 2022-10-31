@@ -41,7 +41,7 @@ class RowValidator(BaseModel):
     def product_type_and_nphies_not_empty_simultaneously(cls, value, values):
         product_type = values.get('PRODUCT_TYPE')
         if (value is None and product_type is None) or (str(value) == 'nan' and str(product_type) == 'nan'):
-            raise ValueError("Один из параметров должен быть заполнен: 'PRODUCT_TYPE' или 'NPHIES_CODE'.")
+            raise ValueError("Один из параметров должен быть заполнен: 'service_type' или 'nphies_code'. Мы пытались найти 'nphies_code' по 'service_name', но у нас не получилось.")
         return value
 
     @validator('INSURED_AGE_WHEN_SERVICED', 'SERVICE_DATE', pre=True)
