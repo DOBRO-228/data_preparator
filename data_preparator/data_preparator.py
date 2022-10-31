@@ -183,7 +183,9 @@ def enrich_by_nphies_codes(df: pd.DataFrame):
 
     df['NPHIES_CODE'] = [
         mapping_as_dict.get(service_name_and_nphies[0])
-        if str(service_name_and_nphies[1]) == 'nan' and service_name_and_nphies[0] in mapping_as_dict.keys()
+        if (
+            str(service_name_and_nphies[1]) == '' or str(service_name_and_nphies[1]) == 'nan'
+        ) and service_name_and_nphies[0] in mapping_as_dict.keys()
         else service_name_and_nphies[1]
         for service_name_and_nphies in list(zipped)
     ]
