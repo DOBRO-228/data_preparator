@@ -27,4 +27,7 @@ def insert_row_errors_info_into_df_by_index(df: pd.DataFrame, indices_of_rows_wi
     for df_index, errors in indices_of_rows_with_invalid_data.items():
         cell_with_row_errors = df.loc[df_index, 'ERRORS']
         for error in errors:
-            df.loc[df_index, 'ERRORS'] = '{0}{1}\n'.format(cell_with_row_errors, error)
+            if cell_with_row_errors == '':
+                df.at[df_index, 'ERRORS'] = [error]
+            else:
+                df.at[df_index, 'ERRORS'] += error
