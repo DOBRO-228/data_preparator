@@ -21,6 +21,7 @@ def process_data_frame(df: pd.DataFrame):
     """Обрабатывает данные."""
     remove_blank_rows_and_columns(df)
     primary_df_but_with_added_record_id_column = get_copy_of_df_with_added_record_id_column(df)
+    df = add_record_id_column(df)
     try:
         validate_required_columns(
             data_frame=df,
@@ -37,13 +38,11 @@ def process_data_frame(df: pd.DataFrame):
         DataFrameValidator(data_frame=df.to_dict('records'))
     except ValidationError as errors:
         df, df_with_incomplete_data = separate_incomplete_data(df, errors)
-        df_with_incomplete_data = add_record_id_column(df_with_incomplete_data)
         indices_of_rows_with_invalid_data = get_indices_and_info_from_errors(errors)
         insert_row_errors_info_into_df_by_index(df_with_incomplete_data, indices_of_rows_with_invalid_data)
     else:
         df_with_incomplete_data = pd.DataFrame()
     set_columns_order_based_on_columns_mapping(df)
-    df = add_record_id_column(df)
     convert_int_columns_to_int_format(df)
     convert_str_columns_to_str_format(df)
     convert_float_columns_to_float_format(df)
@@ -92,6 +91,7 @@ def drop_not_required_columns(df):
     current_columns = df.columns.values.tolist()
     striped_and_lower_current_column_headers = strip_and_set_lower_each_string_in_list(current_columns)
     required_columns = strip_and_set_lower_each_string_in_list(constants.COLUMNS_MAPPING.keys())
+    required_columns.append('record_id')
     lower_header_columns_to_drop = list(
         set(striped_and_lower_current_column_headers) - set(required_columns),
     )
