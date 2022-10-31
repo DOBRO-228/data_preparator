@@ -34,21 +34,21 @@ class RowValidator(BaseModel):
     @validator(*constants.NOT_EMPTY_REQUIRED_COLUMNS, pre=True)
     def check_cells_in_required_columns_are_not_empty(cls, value):
         if value == '' or pd.isna(value):
-            raise ValueError('Это поле не может быть пустым.')
+            raise ValueError('Mandatory field, cannot be empty.')
         return value
 
     @validator('NPHIES_CODE', pre=True)
     def product_type_and_nphies_not_empty_simultaneously(cls, value, values):
         product_type = values.get('PRODUCT_TYPE')
         if (value is None and product_type is None) or (str(value) == 'nan' and str(product_type) == 'nan'):
-            raise ValueError("Один из параметров должен быть заполнен: 'service_type' или 'nphies_code'. Мы пытались найти 'nphies_code' по 'service_name', но у нас не получилось.")
+            raise ValueError("One of the parameters must be not empty: 'service_type' or 'nphies_code'.")
         return value
 
     @validator('INSURED_AGE_WHEN_SERVICED', 'SERVICE_DATE', pre=True)
     def date_can_be_parsed_in_columns_with_dates(cls, value):
         if isinstance(value, (Timestamp, datetime, date)):
             return value
-        error_message = "'{0}' Дата не распознаётся.".format(value)
+        error_message = "'{0}' Invalid Date.".format(value)
         if not isinstance(value, str):
             raise ValueError(error_message)
         quantities_of_every_separator_in_date = [
@@ -73,7 +73,7 @@ class RowValidator(BaseModel):
         current_date = datetime.today().date()
         if parsed_date > current_date:
             raise ValueError(
-                "Дата '{0}' распозналась как '{1}' (ГГГГ-ММ-ДД). Она из будущего.".format(
+                "Date '{0}' identified as a future date '{1}' (YYYY-MM-DD).".format(
                     value,
                     parsed_date,
                 ),
@@ -104,12 +104,12 @@ class RowValidator(BaseModel):
                 dayfirst=True,
             ).date()
         if parsed_birth_date > parsed_service_date:
-            message = "Распознанная дата рождения '{0}' больше чем распознанная дата оказания услуги {1}".format(
+            message = "Identified Date of birth '{0}' is greater than the identified Service date {1}".format(
                 parsed_birth_date,
                 parsed_service_date,
             )
             raise ValueError(
-                "Дата рождения: '{0}' (распозналась как '{1}' (ГГГГ-ММ-ДД)). Дата оказания услуги '{2}' (распозналась как '{3}' (ГГГГ-ММ-ДД)). {4}".format(
+                "Date of birth: '{0}' (identified as '{1}' (YYYY-MM-DD)). Service date '{2}' (identified as '{3}' (YYYY-MM-DD)). {4}.".format(
                     birth_date,
                     parsed_birth_date,
                     value,
