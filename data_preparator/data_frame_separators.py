@@ -14,6 +14,9 @@ else:
     DRUG_NOMENCLATURE = get_cached_mapping('data_preparator_drug_nomenclature')
 
 
+NPHIES_CODE_WITHOUT_DASHES = 'NPHIES_CODE_WITHOUT_DASHES'
+
+
 def separate_drugs(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
     DRUG_NOMENCLATURE['CODE'] = DRUG_NOMENCLATURE['CODE'].apply(
         lambda code: re.sub('^0*', '', code),
@@ -38,15 +41,15 @@ def separate_drugs(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
 
 def separate_devices(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    df['NPHIES_CODE_WITHOUT_DASHES'] = df['NPHIES_CODE']
-    df['NPHIES_CODE_WITHOUT_DASHES'] = df['NPHIES_CODE_WITHOUT_DASHES'].apply(
+    df[NPHIES_CODE_WITHOUT_DASHES] = df['NPHIES_CODE']
+    df[NPHIES_CODE_WITHOUT_DASHES] = df[NPHIES_CODE_WITHOUT_DASHES].apply(
         lambda nphies_code: nphies_code.replace('-', ''),
     )
 
     indices_of_rows_with_devices = []
     for row_index in df.index:
 
-        nphies_code_without_dashes_in_row = df.loc[row_index, 'NPHIES_CODE_WITHOUT_DASHES']
+        nphies_code_without_dashes_in_row = df.loc[row_index, NPHIES_CODE_WITHOUT_DASHES]
         product_type_in_row = df.loc[row_index, 'PRODUCT_TYPE']
 
         if len(nphies_code_without_dashes_in_row) == 5:
@@ -55,7 +58,7 @@ def separate_devices(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
         elif product_type_in_row == 'DEVICE':
             indices_of_rows_with_devices.append(row_index)
 
-    df.drop('NPHIES_CODE_WITHOUT_DASHES', axis='columns', inplace=True)
+    df.drop(NPHIES_CODE_WITHOUT_DASHES, axis='columns', inplace=True)
     df_with_devices = df[df.index.isin(indices_of_rows_with_devices)]
     df = df.loc[~df.index.isin(indices_of_rows_with_devices)]
     return df, df_with_devices

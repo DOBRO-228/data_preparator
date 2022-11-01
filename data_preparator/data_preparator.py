@@ -26,6 +26,8 @@ else:
     SERVICE_NAME_TO_NPHIES_CODE_MAPPING = get_cached_mapping('service_name_to_nphies_code_mapping')
 
 
+NPHIES_CODE = 'NPHIES_CODE'
+SERVICE_QUANTITY = 'SERVICE_QUANTITY'
 
 
 def process_data_frame(df: pd.DataFrame):
@@ -91,7 +93,7 @@ def set_columns_order_based_on_columns_mapping(df: pd.DataFrame) -> None:
 
 def remove_zeros_from_left_side_of_nphies_codes(df):
     """Убирает нули с левой стороны НФИС кода."""
-    df['NPHIES_CODE'] = df['NPHIES_CODE'].apply(
+    df[NPHIES_CODE] = df[NPHIES_CODE].apply(
         lambda code: re.sub('^0*', '', code),
     )
 
@@ -163,8 +165,8 @@ def convert_date_columns_to_datetime_format(df):
 
 def fill_empty_cells_in_quantity_column(df):
     """Заполняет пустые ячейки или ячейки с отрицательным значением колонки количества услуг."""
-    df['SERVICE_QUANTITY'] = df['SERVICE_QUANTITY'].fillna(1)
-    df['SERVICE_QUANTITY'] = df['SERVICE_QUANTITY'].apply(
+    df[SERVICE_QUANTITY] = df[SERVICE_QUANTITY].fillna(1)
+    df[SERVICE_QUANTITY] = df[SERVICE_QUANTITY].apply(
         lambda quantity: 1 if quantity in constants.NAN_VALUES or quantity < 1 else quantity,
     )
 
@@ -180,11 +182,11 @@ def change_benefit_type_val_according_to_mapping(df: pd.DataFrame) -> None:
 
 
 def enrich_by_nphies_codes(df: pd.DataFrame):
-    mapping_as_dict = SERVICE_NAME_TO_NPHIES_CODE_MAPPING.set_index('SERVICE_NAME').to_dict()['NPHIES_CODE']
+    mapping_as_dict = SERVICE_NAME_TO_NPHIES_CODE_MAPPING.set_index('SERVICE_NAME').to_dict()[NPHIES_CODE]
 
-    zipped = zip(df['SERVICE_NAME'], df['NPHIES_CODE'])
+    zipped = zip(df['SERVICE_NAME'], df[NPHIES_CODE])
 
-    df['NPHIES_CODE'] = [
+    df[NPHIES_CODE] = [
         mapping_as_dict.get(service_name_and_nphies[0])
         if (
             str(service_name_and_nphies[1]) == '' or str(service_name_and_nphies[1]) == 'nan'
