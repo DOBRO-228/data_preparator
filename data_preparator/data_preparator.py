@@ -163,12 +163,12 @@ def fill_empty_cells_in_quantity_column(df):
 
 def change_service_type_val_according_to_mapping(df: pd.DataFrame) -> None:
     """Изменяет некоторые значения в колонке 'SERVICE_TYPE_MAPPING' согласно маппингу."""
-    df['PRODUCT_TYPE'] = df['PRODUCT_TYPE'].replace(constants.SERVICE_TYPE_MAPPING)
+    df['PRODUCT_TYPE'] = df['PRODUCT_TYPE'].str.strip().str.upper().replace(constants.SERVICE_TYPE_MAPPING)
 
 
 def change_benefit_type_val_according_to_mapping(df: pd.DataFrame) -> None:
     """Изменяет некоторые значения в колонке 'BENEFIT_TYPE' согласно маппингу."""
-    df['BENEFIT_TYPE'] = df['BENEFIT_TYPE'].replace(constants.BENEFIT_MAPPING)
+    df['BENEFIT_TYPE'] = df['BENEFIT_TYPE'].str.strip().str.upper().replace(constants.BENEFIT_MAPPING)
 
 
 def enrich_by_nphies_codes(df: pd.DataFrame):
