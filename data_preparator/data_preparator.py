@@ -1,4 +1,3 @@
-import os
 import re
 
 import pandas as pd
@@ -17,7 +16,16 @@ from .utils.strings import strip_and_set_lower_each_string_in_list
 from .utils.validation import get_indices_and_info_from_errors, insert_row_errors_info_into_df_by_index
 from .validators import DataFrameValidator, validate_required_columns
 
-package_dir = os.path.abspath(os.path.dirname(__file__))
+try:
+    from app.pipiline.utils.base import get_cached_mapping
+except ImportError:
+    SERVICE_NAME_TO_NPHIES_CODE_MAPPING = pd.read_excel(
+        'auxiliary_files/Маппинг_название услуги_к_нфис_коду.xlsx',
+    )
+else:
+    SERVICE_NAME_TO_NPHIES_CODE_MAPPING = get_cached_mapping('service_name_to_nphies_code_mapping')
+
+
 
 
 def process_data_frame(df: pd.DataFrame):
@@ -172,12 +180,7 @@ def change_benefit_type_val_according_to_mapping(df: pd.DataFrame) -> None:
 
 
 def enrich_by_nphies_codes(df: pd.DataFrame):
-    path_to_file = os.path.join(
-        package_dir,
-        'auxiliary_files/Маппинг_название услуги_к_нфис_коду.xlsx',
-    )
-    service_name_to_nphies_code_mapping = pd.read_excel(path_to_file)
-    mapping_as_dict = service_name_to_nphies_code_mapping.set_index('SERVICE_NAME').to_dict()['NPHIES_CODE']
+    mapping_as_dict = SERVICE_NAME_TO_NPHIES_CODE_MAPPING.set_index('SERVICE_NAME').to_dict()['NPHIES_CODE']
 
     zipped = zip(df['SERVICE_NAME'], df['NPHIES_CODE'])
 

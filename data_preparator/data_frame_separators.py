@@ -1,4 +1,3 @@
-import os
 import re
 from typing import Tuple
 
@@ -7,19 +6,19 @@ from pydantic import ValidationError
 
 from .utils.validation import get_indices_and_info_from_errors
 
-package_dir = os.path.abspath(os.path.dirname(__file__))
+try:
+    from app.pipiline.utils.base import get_cached_mapping
+except ImportError:
+    DRUG_NOMENCLATURE = pd.read_excel('auxiliary_files/Номенклатура_лекарств.xlsx')
+else:
+    DRUG_NOMENCLATURE = get_cached_mapping('data_preparator_drug_nomenclature')
 
 
 def separate_drugs(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    path_to_file = os.path.join(
-        package_dir,
-        'auxiliary_files/Номенклатура_лекарств.xlsx',
-    )
-    drugs = pd.read_excel(path_to_file)
-    drugs['CODE'] = drugs['CODE'].apply(
+    DRUG_NOMENCLATURE['CODE'] = DRUG_NOMENCLATURE['CODE'].apply(
         lambda code: re.sub('^0*', '', code),
     )
-    codes_of_drugs = drugs['CODE'].values.tolist()
+    codes_of_drugs = DRUG_NOMENCLATURE['CODE'].values.tolist()
 
     indices_of_rows_with_drugs = []
     for row_index in df.index:
