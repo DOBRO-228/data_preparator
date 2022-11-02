@@ -183,6 +183,10 @@ def change_benefit_type_val_according_to_mapping(df: pd.DataFrame) -> None:
 
 def enrich_by_nphies_codes(df: pd.DataFrame):
     mapping_as_dict = SERVICE_NAME_TO_NPHIES_CODE_MAPPING.set_index('SERVICE_NAME').to_dict()[NPHIES_CODE]
+    mapping_as_dict = {
+        str(service_name).strip(): str(nphies_code).strip()
+        for service_name, nphies_code in mapping_as_dict.items()
+    }
 
     zipped = zip(df['SERVICE_NAME'], df[NPHIES_CODE])
 
