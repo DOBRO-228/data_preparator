@@ -202,9 +202,17 @@ def enrich_by_nphies_codes(df: pd.DataFrame):
     ]
 
 
-def convert_gender_column_to_boolean_format(df):
+def gender_convert_function(gender: str) -> bool:
+    """Конвертирует пол пациента в булево значение."""
+    female_values = ['F', 'f', 'Female', 'female']
+    if gender in female_values:  # Noqa: WPS531
+        return False
+    return True
+
+
+def convert_gender_column_to_boolean_format(df: pd.DataFrame) -> None:
     """Приводит к булевому значению колонку с полом пациента."""
-    males = ['M', 'm', 'Male', 'male']
-    df['INSURED_IS_MALE'] = df['INSURED_IS_MALE'].apply(
-        lambda gender: True if gender in males else False,
-    )
+    df['INSURED_IS_MALE'] = [
+        gender_convert_function(gender)
+        for gender in df['INSURED_IS_MALE']
+    ]
