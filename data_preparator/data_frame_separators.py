@@ -70,3 +70,12 @@ def separate_incomplete_data(df: pd.DataFrame, errors: ValidationError) -> Tuple
     df_with_incomplete_data = df.loc[indices_of_rows_with_invalid_data.keys()]
     df = df.loc[~df.index.isin(indices_of_rows_with_invalid_data.keys())]
     return df, df_with_incomplete_data
+
+
+def separate_out_data(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Отделяет строки с невалидными данными в отдельный дата фрейм."""
+    df_with_out_data = df.loc[df['benefit_type'] == 'H-I']
+    df = df.loc[~df.index.isin(df_with_out_data.index)]
+    print('111\n', df)
+    print('222\n', df_with_out_data)
+    return df, df_with_out_data

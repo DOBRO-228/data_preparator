@@ -4,7 +4,7 @@ import pandas as pd
 from pydantic import ValidationError
 
 from . import constants
-from .data_frame_separators import separate_devices, separate_drugs, separate_incomplete_data
+from .data_frame_separators import separate_devices, separate_drugs, separate_incomplete_data, separate_out_data
 from .exceptions import MissingColumnsInDataFrameError
 from .utils.date import standardize_date_format
 from .utils.excel_file import (
@@ -34,6 +34,7 @@ def process_data_frame(df: pd.DataFrame):
     """Обрабатывает данные."""
     remove_blank_rows_and_columns(df)
     primary_df_but_with_added_record_id_column = get_copy_of_df_with_added_record_id_column(df)
+    df, df_with_out_data = separate_out_data(df)
     df = add_record_id_column(df)
     df.columns = df.columns.str.strip()
     try:
@@ -74,6 +75,7 @@ def process_data_frame(df: pd.DataFrame):
         'df_with_medical_devices': df_with_medical_devices,
         'df_with_drugs': df_with_drugs,
         'df_with_incomplete_data': df_with_incomplete_data,
+        'df_with_out_data': df_with_out_data,
         'primary_df_but_with_added_record_id_column': primary_df_but_with_added_record_id_column,
     }
 
