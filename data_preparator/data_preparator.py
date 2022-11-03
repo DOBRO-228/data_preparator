@@ -34,7 +34,6 @@ def process_data_frame(df: pd.DataFrame):
     """Обрабатывает данные."""
     remove_blank_rows_and_columns(df)
     primary_df_but_with_added_record_id_column = get_copy_of_df_with_added_record_id_column(df)
-    df, df_with_out_data = separate_out_data(df)
     df = add_record_id_column(df)
     df.columns = df.columns.str.strip()
     try:
@@ -49,6 +48,9 @@ def process_data_frame(df: pd.DataFrame):
         return wb
     drop_not_required_columns(df)
     rename_columns(df)
+    change_service_type_val_according_to_mapping(df)
+    change_benefit_type_val_according_to_mapping(df)
+    df, df_with_out_data = separate_out_data(df)
     enrich_by_nphies_codes(df)
     try:
         DataFrameValidator(data_frame=df.to_dict('records'))
@@ -66,8 +68,6 @@ def process_data_frame(df: pd.DataFrame):
     convert_gender_column_to_boolean_format(df)
     remove_zeros_from_left_side_of_nphies_codes(df)
     fill_empty_cells_in_quantity_column(df)
-    change_service_type_val_according_to_mapping(df)
-    change_benefit_type_val_according_to_mapping(df)
     df, df_with_medical_devices = separate_devices(df)
     df, df_with_drugs = separate_drugs(df)
     return {

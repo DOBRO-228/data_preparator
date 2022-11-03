@@ -4,6 +4,7 @@ from typing import Tuple
 import pandas as pd
 from pydantic import ValidationError
 
+from . import constants
 from .utils.validation import get_indices_and_info_from_errors
 
 try:
@@ -74,8 +75,6 @@ def separate_incomplete_data(df: pd.DataFrame, errors: ValidationError) -> Tuple
 
 def separate_out_data(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """Отделяет строки с невалидными данными в отдельный дата фрейм."""
-    df_with_out_data = df.loc[df['benefit_type'] == 'H-I']
+    df_with_out_data = df.loc[df['BENEFIT_TYPE'].isin(constants.BENEFIT_TYPES_OF_OUT_DATA_ROWS)]
     df = df.loc[~df.index.isin(df_with_out_data.index)]
-    print('111\n', df)
-    print('222\n', df_with_out_data)
     return df, df_with_out_data
