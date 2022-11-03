@@ -62,6 +62,7 @@ SERVICE_TYPE_MAPPING = types.MappingProxyType({
     'INJC': 'MEDS',
 })
 
+BENEFIT_TYPES_OF_OUT_DATA_ROWS = frozenset(('H-I', 'H-IP'))
 
 COLUMNS_MAPPING = types.MappingProxyType({
     'provider_id': 'LPU_ID',
