@@ -12,7 +12,7 @@ from .utils.excel_file import (
     convert_data_frame_to_workbook_of_openpyxl,
     insert_rows_with_file_errors_into_workbook,
 )
-from .utils.strings import remove_zeros_from_the_beginning, strip_and_set_lower_each_string_in_list
+from .utils.strings import strip_and_set_lower_each_string_in_list
 from .validators import DataFrameValidator, validate_required_columns
 
 try:
@@ -44,6 +44,7 @@ def process_data_frame(df: pd.DataFrame):
         wb = convert_data_frame_to_workbook_of_openpyxl(df)
         insert_rows_with_file_errors_into_workbook(wb, error)
         apply_style(wb)
+        wb.save('debug/debug_output/missing_columns.xlsx')
         return wb
     drop_not_required_columns(df)
     rename_columns(df)
@@ -64,7 +65,6 @@ def process_data_frame(df: pd.DataFrame):
     convert_float_columns_to_float_format(df)
     convert_date_columns_to_datetime_format(df)
     convert_gender_column_to_boolean_format(df)
-    remove_zeros_from_left_side_of_nphies_codes(df)
     fill_empty_cells_in_quantity_column(df)
     df, df_with_medical_devices = separate_devices(df)
     df, df_with_drugs = separate_drugs(df)
@@ -89,14 +89,6 @@ def set_columns_order_based_on_columns_mapping(df: pd.DataFrame) -> None:
     """Устанавливает в data frame'е такой же порядок столбцов, как и в constants.COLUMNS_MAPPING."""
     column_headers_in_right_order = constants.COLUMNS_MAPPING.values()
     df = df[column_headers_in_right_order]
-
-
-def remove_zeros_from_left_side_of_nphies_codes(df):
-    """Убирает нули с левой стороны НФИС кода."""
-    df[NPHIES_CODE] = [
-        remove_zeros_from_the_beginning(nphies_code)
-        for nphies_code in df[NPHIES_CODE]
-    ]
 
 
 def get_copy_of_df_with_added_record_id_column(df):
