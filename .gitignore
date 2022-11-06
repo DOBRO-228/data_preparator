@@ -9,3 +9,6 @@ input/
 output/
 yahaa/
 .env
+debug
+debug/*
+debug/debug_output/*
