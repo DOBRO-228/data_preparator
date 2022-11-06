@@ -12,8 +12,7 @@ from .utils.excel_file import (
     convert_data_frame_to_workbook_of_openpyxl,
     insert_rows_with_file_errors_into_workbook,
 )
-from .utils.strings import strip_and_set_lower_each_string_in_list
-from .utils.validation import get_indices_and_info_from_errors, insert_row_errors_info_into_df_by_index
+from .utils.strings import remove_zeros_from_the_beginning, strip_and_set_lower_each_string_in_list
 from .validators import DataFrameValidator, validate_required_columns
 
 try:
@@ -51,13 +50,12 @@ def process_data_frame(df: pd.DataFrame):
     change_service_type_val_according_to_mapping(df)
     change_benefit_type_val_according_to_mapping(df)
     df, df_with_out_data = separate_out_data(df)
-    enrich_by_nphies_codes(df)
+    df.reset_index(drop=True, inplace=True)
+    enrich_with_nphies_codes(df)
     try:
         DataFrameValidator(data_frame=df.to_dict('records'))
     except ValidationError as errors:
         df, df_with_incomplete_data = separate_incomplete_data(df, errors)
-        indices_of_rows_with_invalid_data = get_indices_and_info_from_errors(errors)
-        insert_row_errors_info_into_df_by_index(df_with_incomplete_data, indices_of_rows_with_invalid_data)
     else:
         df_with_incomplete_data = pd.DataFrame()
     set_columns_order_based_on_columns_mapping(df)
@@ -95,9 +93,10 @@ def set_columns_order_based_on_columns_mapping(df: pd.DataFrame) -> None:
 
 def remove_zeros_from_left_side_of_nphies_codes(df):
     """Убирает нули с левой стороны НФИС кода."""
-    df[NPHIES_CODE] = df[NPHIES_CODE].apply(
-        lambda code: re.sub('^0*', '', code),
-    )
+    df[NPHIES_CODE] = [
+        remove_zeros_from_the_beginning(nphies_code)
+        for nphies_code in df[NPHIES_CODE]
+    ]
 
 
 def get_copy_of_df_with_added_record_id_column(df):
@@ -143,6 +142,13 @@ def convert_str_columns_to_str_format(df):
     """Приводит нужные колонки к строке."""
     for column in constants.STR_COLUMNS:
         df[column] = df[column].astype(str)
+        if column == 'NPHIES_CODE':
+            # Удаляет точку и нули с конца.
+            # Иногда при создании дата фрейма НФИС код 228 парсится как строка 228.0.
+            df[column] = [
+                re.sub(r'\.[0-9]*$', '', nphies_code)
+                for nphies_code in df[column]
+            ]
 
 
 def convert_int_columns_to_int_format(df):
@@ -183,22 +189,26 @@ def change_benefit_type_val_according_to_mapping(df: pd.DataFrame) -> None:
     df['BENEFIT_TYPE'] = df['BENEFIT_TYPE'].str.strip().str.upper().replace(constants.BENEFIT_MAPPING)
 
 
-def enrich_by_nphies_codes(df: pd.DataFrame):
+def enrich_with_nphies_codes(df: pd.DataFrame):
     mapping_as_dict = SERVICE_NAME_TO_NPHIES_CODE_MAPPING.set_index('SERVICE_NAME').to_dict()[NPHIES_CODE]
     mapping_as_dict = {
         str(service_name).strip(): str(nphies_code).strip()
         for service_name, nphies_code in mapping_as_dict.items()
     }
+    service_names_and_nphies_codes = zip(df['SERVICE_NAME'], df[NPHIES_CODE])
 
-    zipped = zip(df['SERVICE_NAME'], df[NPHIES_CODE])
+    services_names_from_mapping = mapping_as_dict.keys()
+    nan_values = {'', 'nan'}
 
     df[NPHIES_CODE] = [
-        mapping_as_dict.get(service_name_and_nphies[0])
+        mapping_as_dict.get(service_name_and_nphies_code[0])
         if (
-            str(service_name_and_nphies[1]) == '' or str(service_name_and_nphies[1]) == 'nan'
-        ) and service_name_and_nphies[0] in mapping_as_dict.keys()
-        else service_name_and_nphies[1]
-        for service_name_and_nphies in list(zipped)
+            service_name_and_nphies_code[0] in services_names_from_mapping
+        ) and (
+            str(service_name_and_nphies_code[1]) in nan_values
+        )
+        else service_name_and_nphies_code[1]
+        for service_name_and_nphies_code in list(service_names_and_nphies_codes)
     ]
 
 
