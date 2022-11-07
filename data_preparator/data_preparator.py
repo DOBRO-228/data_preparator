@@ -182,25 +182,29 @@ def change_benefit_type_val_according_to_mapping(df: pd.DataFrame) -> None:
 
 
 def enrich_with_nphies_codes(df: pd.DataFrame):
-    mapping_as_dict = SERVICE_NAME_TO_NPHIES_CODE_MAPPING.set_index('SERVICE_NAME').to_dict()[NPHIES_CODE]
-    mapping_as_dict = {
-        str(service_name).strip(): str(nphies_code).strip()
-        for service_name, nphies_code in mapping_as_dict.items()
+    mapping_as_dict_with_lowered_service_names = SERVICE_NAME_TO_NPHIES_CODE_MAPPING.set_index('SERVICE_NAME').to_dict()[NPHIES_CODE]
+    mapping_as_dict_with_lowered_service_names = {
+        str(service_name).strip().lower(): str(nphies_code).strip()
+        for service_name, nphies_code in mapping_as_dict_with_lowered_service_names.items()
     }
-    service_names_and_nphies_codes = zip(df['SERVICE_NAME'], df[NPHIES_CODE])
 
-    services_names_from_mapping = mapping_as_dict.keys()
+    df_lowered_services_names = [
+        service_name.strip().lower()
+        for service_name in df['SERVICE_NAME']
+    ]
+    lowered_service_names_and_nphies_codes = zip(df_lowered_services_names, df[NPHIES_CODE])
+
     nan_values = {'', 'nan'}
 
     df[NPHIES_CODE] = [
-        mapping_as_dict.get(service_name_and_nphies_code[0])
+        mapping_as_dict_with_lowered_service_names[lowered_service_name_and_nphies_code[0]]
         if (
-            service_name_and_nphies_code[0] in services_names_from_mapping
+            lowered_service_name_and_nphies_code[0] in mapping_as_dict_with_lowered_service_names.keys()
         ) and (
-            str(service_name_and_nphies_code[1]) in nan_values
+            str(lowered_service_name_and_nphies_code[1]) in nan_values
         )
-        else service_name_and_nphies_code[1]
-        for service_name_and_nphies_code in list(service_names_and_nphies_codes)
+        else lowered_service_name_and_nphies_code[1]
+        for lowered_service_name_and_nphies_code in list(lowered_service_names_and_nphies_codes)
     ]
 
 
