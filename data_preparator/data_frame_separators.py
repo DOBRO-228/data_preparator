@@ -31,8 +31,13 @@ def separate_drugs(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
         for nphies_code in nphies_codes_of_drugs_in_nomenclature
     ]
 
+    nphies_codes_without_zeros = [
+        remove_zeros_from_the_beginning(nphies_code.strip())
+        for nphies_code in df['NPHIES_CODE']
+    ]
+
     nphies_codes_and_product_types_and_indexes = zip(
-        df['NPHIES_CODE'],
+        nphies_codes_without_zeros,
         df['PRODUCT_TYPE'],
         df.index,
     )
