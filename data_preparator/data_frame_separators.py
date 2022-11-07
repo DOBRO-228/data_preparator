@@ -57,7 +57,12 @@ def separate_drugs(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
         if index is not None
     ]
 
-    return separate_dataframe_by_indexes(df, indexes_of_rows_with_drugs)
+    df, df_with_drugs = separate_dataframe_by_indexes(df, indexes_of_rows_with_drugs)
+    df_with_drugs['NPHIES_CODE'] = [
+        remove_zeros_from_the_beginning(nphies_code.strip())
+        for nphies_code in df_with_drugs['NPHIES_CODE']
+    ]
+    return df, df_with_drugs
 
 
 def separate_devices(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
