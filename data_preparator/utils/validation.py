@@ -24,20 +24,20 @@ def get_indices_and_info_from_errors(errors: ValidationError) -> dict:
     return indices_of_rows_with_invalid_data
 
 
-def insert_row_errors_info_into_df_by_index(df: pd.DataFrame, indices_of_rows_with_invalid_data: dict) -> None:
+def insert_row_errors_info_into_df_by_index(df: pd.DataFrame, row_indexes_and_errors_info: dict) -> None:
     df['ERRORS'] = ''
     reversed_columns_mapping = {
         output_column_header: input_column_header
         for input_column_header, output_column_header in COLUMNS_MAPPING.items()
     }
-    for df_index, errors in indices_of_rows_with_invalid_data.items():
-        for error in errors:
-            cell_with_row_errors = df.loc[df_index, 'ERRORS']
+    for row_index, errors_in_row in row_indexes_and_errors_info.items():
+        for error in errors_in_row:
+            cell_with_row_errors = df.loc[row_index, 'ERRORS']
             error = {
                 reversed_columns_mapping[column_with_error]: error_message
                 for column_with_error, error_message in error.items()
             }
             if cell_with_row_errors == '':
-                df.at[df_index, 'ERRORS'] = [error]
+                df.at[row_index, 'ERRORS'] = [error]
             else:
-                df.at[df_index, 'ERRORS'] += [error]
+                df.at[row_index, 'ERRORS'] += [error]

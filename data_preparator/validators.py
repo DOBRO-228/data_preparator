@@ -4,7 +4,6 @@ from datetime import date, datetime
 from typing import List, Optional, Union
 
 import pandas as pd
-from .utils.strings import strip_and_set_lower_each_string_in_list
 from dateutil import parser as date_parser
 from dateutil.parser import ParserError
 from pandas import Timestamp
@@ -12,6 +11,7 @@ from pydantic import BaseModel, Field, validator
 
 from . import constants
 from .exceptions import MissingColumnsInDataFrameError
+from .utils.strings import strip_and_set_lower_each_string_in_list
 
 
 class RowValidator(BaseModel):
