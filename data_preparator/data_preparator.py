@@ -48,6 +48,7 @@ def process_data_frame(df: pd.DataFrame):
         return wb
     drop_not_required_columns(df)
     rename_columns(df)
+    convert_str_columns_to_str_format(df)
     change_service_type_val_according_to_mapping(df)
     change_benefit_type_val_according_to_mapping(df)
     df, df_with_out_data = separate_out_data(df)
@@ -61,7 +62,6 @@ def process_data_frame(df: pd.DataFrame):
         df_with_incomplete_data = pd.DataFrame()
     set_columns_order_based_on_columns_mapping(df)
     convert_int_columns_to_int_format(df)
-    convert_str_columns_to_str_format(df)
     convert_float_columns_to_float_format(df)
     convert_date_columns_to_datetime_format(df)
     convert_gender_column_to_boolean_format(df)
