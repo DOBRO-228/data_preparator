@@ -141,7 +141,7 @@ def convert_str_columns_to_str_format(df):
                 re.sub(r'\.[0-9]*$', '', nphies_code)
                 for nphies_code in df[column]
             ]
-        df[column] = df[column].str.replace('nan','')
+        df[column] = df[column].str.replace('None|nan', '')
 
 
 def convert_int_columns_to_int_format(df):
