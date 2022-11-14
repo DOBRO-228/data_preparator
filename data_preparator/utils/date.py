@@ -16,7 +16,7 @@ def standardize_date_format(date_with_time):
         parsed_date = date_with_time
     else:
         try:
-            parsed_date = date_parser.parse(date_with_time, dayfirst=True).date()
+            parsed_date = date_parser.parse(date_with_time, dayfirst=False).date()
         except ParserError:
             return np.nan
     return parsed_date.strftime('%d/%m/%Y')
