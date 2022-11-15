@@ -19,7 +19,7 @@ try:
     from app.pipiline.utils.base import get_cached_mapping
 except ImportError:
     SERVICE_NAME_TO_NPHIES_CODE_MAPPING = pd.read_excel(
-        'auxiliary_files/Маппинг_название услуги_к_нфис_коду.xlsx',
+        'auxiliary_files/Маппинг_название_услуги_к_нфис_коду.xlsx',
     )
 else:
     SERVICE_NAME_TO_NPHIES_CODE_MAPPING = get_cached_mapping('service_name_to_nphies_code_mapping')
@@ -141,7 +141,7 @@ def convert_str_columns_to_str_format(df):
                 re.sub(r'\.[0-9]*$', '', nphies_code)
                 for nphies_code in df[column]
             ]
-        df[column] = df[column].str.replace('None|nan', '')
+        df[column] = df[column].str.replace('None|nan', '', regex=True)
 
 
 def convert_int_columns_to_int_format(df):
