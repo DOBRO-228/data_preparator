@@ -1,5 +1,6 @@
 """Модуль валидаторов."""
 
+import re
 from datetime import date, datetime
 from typing import List, Optional, Union
 
@@ -19,12 +20,12 @@ class RowValidator(BaseModel):
     INSURED_ID: str = Field(...)
     INSURED_AGE_WHEN_SERVICED: Union[datetime, date, str] = Field(...)
     INSURED_IS_MALE: str = Field(...)
+    PRODUCT_TYPE: Optional[str]
+    NPHIES_CODE: Optional[str]
     SERVICE_NAME: str = Field(...)
     SERVICE_DATE: Union[datetime, date, str] = Field(...)
-    PRODUCT_TYPE: Optional[str]
     SERVICE_QUANTITY: str = Field(...)
     SERVICE_AMOUNT: str = Field(...)
-    NPHIES_CODE: Optional[str]
     MKB_CODE: str = Field(...)
     SECOND_MKB_CODE: Optional[str]
     TOOTH: Optional[str]
@@ -65,6 +66,13 @@ class RowValidator(BaseModel):
             date_parser.parse(value, dayfirst=True).date()
         except ParserError:
             raise ValueError(error_message)
+        return value
+
+    @validator('SERVICE_NAME')
+    def service_name_is_human_readable_when_no_nphies_code(cls, value, values):
+        print('@@@@', values.get('NPHIES_CODE'))
+        if not values.get('NPHIES_CODE') and not re.search('[A-Za-z]', value):
+            raise ValueError('Incorrect service name')
         return value
 
     @validator('INSURED_AGE_WHEN_SERVICED', 'SERVICE_DATE')
