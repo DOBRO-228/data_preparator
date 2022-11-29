@@ -9,7 +9,7 @@ class MissingColumnsInDataFrameError(ValueError):
         message -- объяснение ошибки
     """
 
-    def __init__(self, missing_columns):
+    def __init__(self, missing_columns: list[str]):
         self.missing_columns = missing_columns
         self.message = 'Required columns are missing in the Input Data: {0}'.format(
             ', '.join(self.missing_columns),

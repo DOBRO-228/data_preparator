@@ -1,6 +1,15 @@
-from typing import Tuple
+from typing import Optional, Tuple
 
 import pandas as pd
+
+from .strings import remove_zeros_from_the_beginning
+
+try:
+    from app.pipiline.utils.base import get_cached_mapping
+except ImportError:
+    DRUG_NOMENCLATURE = pd.read_excel('auxiliary_files/Номенклатура_лекарств.xlsx')
+else:
+    DRUG_NOMENCLATURE = get_cached_mapping('data_preparator_drug_nomenclature')
 
 
 def separate_dataframe_by_indexes(
@@ -17,7 +26,7 @@ def get_row_index_if_it_belongs_to_device(
     nphies_code_without_dashes: str,
     product_type: str,
     index: int,
-) -> int:
+) -> Optional[int]:
     """Возвращает переданный индекс строки, если строка принадлежит device'у."""
     if len(nphies_code_without_dashes) == 5:
         return index
@@ -30,10 +39,15 @@ def get_row_index_if_it_belongs_to_drug(
     nphies_code_without_zeros_at_the_beginning: str,
     product_type: str,
     index: int,
-    nphies_codes_of_drugs_in_nomenclature,
-) -> int:
+) -> Optional[int]:
     """Возвращает переданный индекс строки, если строка принадлежит лекарству."""
-    if nphies_code_without_zeros_at_the_beginning in nphies_codes_of_drugs_in_nomenclature:
+    nphies_codes_from_nomenclature = DRUG_NOMENCLATURE['CODE'].values.tolist()
+    nphies_codes_without_zeros_from_nomenclature = [
+        remove_zeros_from_the_beginning(nphies_code)
+        for nphies_code in nphies_codes_from_nomenclature
+    ]
+
+    if nphies_code_without_zeros_at_the_beginning in nphies_codes_without_zeros_from_nomenclature:
         return index
     elif product_type == 'MEDS':
         return index

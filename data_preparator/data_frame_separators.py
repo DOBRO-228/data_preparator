@@ -10,27 +10,17 @@ from .utils.separation import (
     separate_dataframe_by_indexes,
 )
 from .utils.strings import remove_zeros_from_the_beginning
-from .utils.validation import get_indices_and_info_from_errors, insert_row_errors_info_into_df_by_index
-
-try:
-    from app.pipiline.utils.base import get_cached_mapping
-except ImportError:
-    DRUG_NOMENCLATURE = pd.read_excel('auxiliary_files/Номенклатура_лекарств.xlsx')
-else:
-    DRUG_NOMENCLATURE = get_cached_mapping('data_preparator_drug_nomenclature')
-
+from .utils.validation import (
+    get_indices_and_info_from_errors,
+    insert_row_errors_info_into_df_by_index,
+    in_errors_rename_columns_to_their_original_names,
+)
 
 NPHIES_CODE_WITHOUT_DASHES = 'NPHIES_CODE_WITHOUT_DASHES'
 
 
 def separate_drugs(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """Отделяет от data frame'а строки с лекарствами."""
-    nphies_codes_of_drugs_in_nomenclature = DRUG_NOMENCLATURE['CODE'].values.tolist()
-    nphies_codes_of_drugs_in_nomenclature = [
-        remove_zeros_from_the_beginning(nphies_code)
-        for nphies_code in nphies_codes_of_drugs_in_nomenclature
-    ]
-
     nphies_codes_without_zeros = [
         remove_zeros_from_the_beginning(nphies_code.strip())
         for nphies_code in df['NPHIES_CODE']
@@ -47,7 +37,6 @@ def separate_drugs(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
             nphies_code,
             product_type,
             row_index,
-            nphies_codes_of_drugs_in_nomenclature,
         )
         for nphies_code, product_type, row_index in nphies_codes_and_product_types_and_indexes
     ]
@@ -67,10 +56,10 @@ def separate_drugs(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
 def separate_devices(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """Отделяет строки с device'ами в отдельный дата фрейм."""
-    df[NPHIES_CODE_WITHOUT_DASHES] = df['NPHIES_CODE']
-    df[NPHIES_CODE_WITHOUT_DASHES] = df[NPHIES_CODE_WITHOUT_DASHES].apply(
-        lambda nphies_code: nphies_code.replace('-', ''),
-    )
+    df[NPHIES_CODE_WITHOUT_DASHES] = [
+        nphies_code.replace('-', '')
+        for nphies_code in df['NPHIES_CODE']
+    ]
 
     nphies_codes_and_product_types_and_indexes = zip(
         df[NPHIES_CODE_WITHOUT_DASHES],
@@ -111,6 +100,6 @@ def separate_incomplete_data(
 
 
 def separate_out_data(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """Отделяет строки с невалидными данными в отдельный дата фрейм."""
+    """Отделяет OUT DATA строки в отдельный дата фрейм."""
     df_with_out_data = df.loc[df['BENEFIT_TYPE'].isin(constants.BENEFIT_TYPES_OF_OUT_DATA_ROWS)]
     return separate_dataframe_by_indexes(df, df_with_out_data.index)
