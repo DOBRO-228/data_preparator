@@ -60,6 +60,7 @@ BENEFIT_MAPPING = types.MappingProxyType({
 
 SERVICE_TYPE_MAPPING = types.MappingProxyType({
     'INJC': 'MEDS',
+    '44': 'MEDS',
 })
 
 BENEFIT_TYPES_OF_OUT_DATA_ROWS = frozenset(('H-IP', ))
