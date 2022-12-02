@@ -44,7 +44,6 @@ def process_data_frame(df: pd.DataFrame):
         wb = convert_data_frame_to_workbook_of_openpyxl(df)
         insert_rows_with_file_errors_into_workbook(wb, error)
         apply_style(wb)
-        wb.save('debug/debug_output/missing_columns.xlsx')
         return wb
     drop_not_required_columns(df)
     rename_columns(df)
