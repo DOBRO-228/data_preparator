@@ -75,7 +75,7 @@ class RowValidator(BaseModel):
             raise ValueError('Incorrect service name')
         return value
 
-    @validator('INSURED_AGE_WHEN_SERVICED', 'SERVICE_DATE')
+    @validator('INSURED_AGE_WHEN_SERVICED')
     def date_cant_be_in_the_future(cls, value):
         if isinstance(value, (Timestamp, datetime)):
             parsed_date = value.date()
