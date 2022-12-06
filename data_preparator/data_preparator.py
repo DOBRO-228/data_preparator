@@ -12,7 +12,7 @@ from .utils.excel_file import (
     convert_data_frame_to_workbook_of_openpyxl,
     insert_rows_with_file_errors_into_workbook,
 )
-from .utils.strings import strip_and_set_lower_each_string_in_list
+from .utils.strings import remove_extra_whitespaces, strip_and_set_lower_each_string_in_list
 from .validators import DataFrameValidator, validate_required_columns
 
 try:
@@ -187,24 +187,36 @@ def enrich_with_nphies_codes(df: pd.DataFrame):
         str(service_name).strip().lower(): str(nphies_code).strip()
         for service_name, nphies_code in mapping_as_dict_with_lowered_service_names.items()
     }
+    mapping_with_service_names_without_extra_whitespaces = {
+        remove_extra_whitespaces(service_name): nphies_code
+        for service_name, nphies_code in mapping_as_dict_with_lowered_service_names.items()
+    }
 
-    df_lowered_services_names = [
+    lowered_service_names_from_df = [
         service_name.strip().lower()
         for service_name in df['SERVICE_NAME']
     ]
-    lowered_service_names_and_nphies_codes = zip(df_lowered_services_names, df[NPHIES_CODE])
+    service_names_without_extra_whitespaces_from_df = [
+        remove_extra_whitespaces(service_name)
+        for service_name in lowered_service_names_from_df
+
+    ]
+    service_names_and_nphies_codes_from_df = zip(
+        service_names_without_extra_whitespaces_from_df,
+        df[NPHIES_CODE],
+    )
 
     nan_values = {'', 'nan'}
 
     df[NPHIES_CODE] = [
-        mapping_as_dict_with_lowered_service_names[lowered_service_name_and_nphies_code[0]]
+        mapping_with_service_names_without_extra_whitespaces[lowered_service_name_and_nphies_code[0]]
         if (
-            lowered_service_name_and_nphies_code[0] in mapping_as_dict_with_lowered_service_names.keys()
+            lowered_service_name_and_nphies_code[0] in mapping_with_service_names_without_extra_whitespaces.keys()
         ) and (
             str(lowered_service_name_and_nphies_code[1]) in nan_values
         )
         else lowered_service_name_and_nphies_code[1]
-        for lowered_service_name_and_nphies_code in list(lowered_service_names_and_nphies_codes)
+        for lowered_service_name_and_nphies_code in list(service_names_and_nphies_codes_from_df)
     ]
 
 
