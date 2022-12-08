@@ -70,7 +70,6 @@ class RowValidator(BaseModel):
 
     @validator('SERVICE_NAME')
     def service_name_is_human_readable_when_no_nphies_code(cls, value, values):
-        print('@@@@', values.get('NPHIES_CODE'))
         if not values.get('NPHIES_CODE') and not re.search('[A-Za-z]', value):
             raise ValueError('Incorrect service name')
         return value
