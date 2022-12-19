@@ -1,10 +1,11 @@
 import re
+import os
 
 import pandas as pd
 from pydantic import ValidationError
 
 from . import constants
-from .data_frame_separators import separate_devices, separate_drugs, separate_incomplete_data, separate_out_data
+from .data_frame_separators import separate_df, separate_incomplete_data, separate_out_data
 from .exceptions import MissingColumnsInDataFrameError
 from .utils.date import standardize_date_format
 from .utils.excel_file import (
@@ -65,10 +66,12 @@ def process_data_frame(df: pd.DataFrame):
     convert_date_columns_to_datetime_format(df)
     convert_gender_column_to_boolean_format(df)
     fill_empty_cells_in_quantity_column(df)
-    df, df_with_medical_devices = separate_devices(df)
-    df, df_with_drugs = separate_drugs(df)
+    df_with_services, df_with_medical_devices, df_with_drugs = separate_df(df)
+    # print('@@@@@@-111', df_with_services)
+    # print('@@@@@@-222', df_with_medical_devices)
+    # print('@@@@@@-333', df_with_drugs)
     return {
-        'df_with_services': df,
+        'df_with_services': df_with_services,
         'df_with_medical_devices': df_with_medical_devices,
         'df_with_drugs': df_with_drugs,
         'df_with_incomplete_data': df_with_incomplete_data,
