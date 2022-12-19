@@ -15,7 +15,7 @@ except ImportError:
     SERVICES_FROM_FILE = pd.read_excel('auxiliary_files/services_nphies_codes.xlsx')
 else:
     DRUG_NOMENCLATURE = get_cached_mapping('data_preparator_drug_nomenclature')
-    SERVICES_FROM_FILE = get_cached_mapping('data_preparator_services_nphies_codes.xlsx')
+    SERVICES_FROM_FILE = get_cached_mapping('data_preparator_services_nphies_codes')
 
 
 NPHIES_CODE = 'NPHIES_CODE'
