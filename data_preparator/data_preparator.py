@@ -65,9 +65,6 @@ def process_data_frame(df: pd.DataFrame):
     convert_gender_column_to_boolean_format(df)
     fill_empty_cells_in_quantity_column(df)
     df_with_services, df_with_medical_devices, df_with_drugs = separate_df(df)
-    # print('@@@@@@-111', df_with_services)
-    # print('@@@@@@-222', df_with_medical_devices)
-    # print('@@@@@@-333', df_with_drugs)
     return {
         'df_with_services': df_with_services,
         'df_with_medical_devices': df_with_medical_devices,
