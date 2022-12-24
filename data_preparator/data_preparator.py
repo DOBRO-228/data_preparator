@@ -113,6 +113,7 @@ def drop_not_required_columns(df):
 
 def rename_columns(df):
     """Переименовывает колонки."""
+    df.columns = df.columns.str.lower()
     df.rename(
         columns=constants.COLUMNS_MAPPING,
         inplace=True,
