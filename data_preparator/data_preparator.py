@@ -1,5 +1,4 @@
 import re
-import os
 
 import pandas as pd
 from pydantic import ValidationError
@@ -16,13 +15,12 @@ from .utils.excel_file import (
 from .utils.strings import remove_extra_whitespaces, strip_and_set_lower_each_string_in_list
 from .validators import DataFrameValidator, validate_required_columns
 
-try:
-    from app.pipiline.utils.base import get_cached_mapping
-except ImportError:
+if constants.ENV == 'LOCAL':
     SERVICE_NAME_TO_NPHIES_CODE_MAPPING = pd.read_excel(
         'auxiliary_files/Маппинг_название_услуги_к_нфис_коду.xlsx',
     )
 else:
+    from app.pipiline.utils.base import get_cached_mapping
     SERVICE_NAME_TO_NPHIES_CODE_MAPPING = get_cached_mapping('service_name_to_nphies_code_mapping')
 
 
