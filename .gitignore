@@ -12,3 +12,4 @@ yahaa/
 debug
 debug/*
 debug/debug_output/*
+.python-version
