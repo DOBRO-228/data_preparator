@@ -1,5 +1,4 @@
 import re
-import os
 
 import pandas as pd
 from pydantic import ValidationError
@@ -16,13 +15,12 @@ from .utils.excel_file import (
 from .utils.strings import remove_extra_whitespaces, strip_and_set_lower_each_string_in_list
 from .validators import DataFrameValidator, validate_required_columns
 
-try:
-    from app.pipiline.utils.base import get_cached_mapping
-except ImportError:
+if constants.ENV == 'LOCAL':
     SERVICE_NAME_TO_NPHIES_CODE_MAPPING = pd.read_excel(
         'auxiliary_files/Маппинг_название_услуги_к_нфис_коду.xlsx',
     )
 else:
+    from app.pipiline.utils.base import get_cached_mapping
     SERVICE_NAME_TO_NPHIES_CODE_MAPPING = get_cached_mapping('service_name_to_nphies_code_mapping')
 
 
@@ -67,9 +65,6 @@ def process_data_frame(df: pd.DataFrame):
     convert_gender_column_to_boolean_format(df)
     fill_empty_cells_in_quantity_column(df)
     df_with_services, df_with_medical_devices, df_with_drugs = separate_df(df)
-    # print('@@@@@@-111', df_with_services)
-    # print('@@@@@@-222', df_with_medical_devices)
-    # print('@@@@@@-333', df_with_drugs)
     return {
         'df_with_services': df_with_services,
         'df_with_medical_devices': df_with_medical_devices,
@@ -118,6 +113,7 @@ def drop_not_required_columns(df):
 
 def rename_columns(df):
     """Переименовывает колонки."""
+    df.columns = df.columns.str.lower()
     df.rename(
         columns=constants.COLUMNS_MAPPING,
         inplace=True,

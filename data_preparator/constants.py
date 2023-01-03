@@ -1,6 +1,18 @@
+import os
 import types
 
 import numpy as np
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
+# Environment constants
+
+ENV = os.environ.get('ENV')
+
+
+# Project constants
 
 NAN_VALUES = (
     float('nan'), 'nan', 'Nan', 'NAN', 'NaN', 'None', 'Null', 'NULL', None, np.nan,
