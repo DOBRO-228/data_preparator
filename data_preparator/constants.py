@@ -15,7 +15,7 @@ ENV = os.environ.get('ENV')
 # Project constants
 
 NAN_VALUES = (
-    float('nan'), 'nan', 'Nan', 'NAN', 'NaN', 'None', 'Null', 'NULL', None, np.nan,
+    'nan', 'Nan', 'NAN', 'NaN', 'None', 'Null', 'NULL', None, np.nan, '',
 )
 
 EXPECTED_SEPARATORS_IN_DATES = (' ', '/', '\\', '-')

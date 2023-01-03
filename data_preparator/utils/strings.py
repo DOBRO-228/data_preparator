@@ -16,4 +16,4 @@ def remove_zeros_from_the_beginning(cell_value: str) -> str:  # Noqa: WPS118
 
 def remove_extra_whitespaces(string: str) -> str:
     """Заменяет много пробелов на один."""
-    return re.sub('\s+', ' ', string)
+    return re.sub(r'\s+', ' ', string)
