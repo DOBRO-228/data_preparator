@@ -137,6 +137,6 @@ def separate_incomplete_data(
 
 
 def separate_out_data(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """Отделяет строки с невалидными данными в отдельный дата фрейм."""
+    """Отделяет OUT DATA строки в отдельный дата фрейм."""
     df_with_out_data = df.loc[df['BENEFIT_TYPE'].isin(constants.BENEFIT_TYPES_OF_OUT_DATA_ROWS)]
     return separate_dataframe_by_indexes(df, df_with_out_data.index)

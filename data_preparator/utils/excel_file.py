@@ -40,7 +40,7 @@ def apply_style(wb: Workbook) -> None:
 
 
 def insert_rows_with_file_errors_into_workbook(wb: Workbook, error: MissingColumnsInDataFrameError) -> None:
-    """Вставляет пустые строки (потом они будут смёрджены) и в ячейку А2 текст ошибок в эксель таблицу."""
+    """Вставляет пустые строки (потом они будут смёрджены) и текст ошибок в ячейку А2 в эксель таблицу."""
     ws = wb.active
     ws.insert_rows(2, amount=5)
     ws['A2'] = error.message

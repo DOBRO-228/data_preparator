@@ -1,5 +1,7 @@
 """Модуль с исключениями."""
 
+from typing import List
+
 
 class MissingColumnsInDataFrameError(ValueError):
     """Исключение возбуждается в функции, которая проверяет факт наличия всех обязательных столбцов в data frame'e.
@@ -9,7 +11,7 @@ class MissingColumnsInDataFrameError(ValueError):
         message -- объяснение ошибки
     """
 
-    def __init__(self, missing_columns):
+    def __init__(self, missing_columns: List[str]):
         self.missing_columns = missing_columns
         self.message = 'Required columns are missing in the Input Data: {0}'.format(
             ', '.join(self.missing_columns),
